@@ -1,0 +1,54 @@
+# Token Eco PoC
+
+子ども向けトークン管理アプリのPoC。
+
+このリポジトリでは、[PLAN.md](/Users/ainem/token_eco/PLAN.md) を最上位の仕様書として扱う。実装者はまずこのREADMEと [docs/CODEX_START_HERE.md](/Users/ainem/token_eco/docs/CODEX_START_HERE.md) を読み、作業対象に応じて補助ドキュメントとPLAN.mdを確認する。
+
+## Product Goal
+
+子どもの「無限のわがまま」を、家族で合意した有限のリソースとして見える化する。
+
+- 子どもに「計画」と「我慢」の感覚を持ってもらう
+- 物理タグの手触りは残す
+- 物理タグ3枚を超えた分はアプリ内貯金として見せる
+- 子ども端末は表示専用キオスク
+- 親がスマホで記録・設定する
+
+## Current Source Of Truth
+
+- Full plan: [PLAN.md](/Users/ainem/token_eco/PLAN.md)
+- Agent workflow: [docs/AGENT_WORKFLOW.md](/Users/ainem/token_eco/docs/AGENT_WORKFLOW.md)
+- Requirements summary: [docs/REQUIREMENTS.md](/Users/ainem/token_eco/docs/REQUIREMENTS.md)
+- Implementation phases: [docs/IMPLEMENTATION_ROADMAP.md](/Users/ainem/token_eco/docs/IMPLEMENTATION_ROADMAP.md)
+- Project structure: [docs/PROJECT_STRUCTURE.md](/Users/ainem/token_eco/docs/PROJECT_STRUCTURE.md)
+- Data model: [docs/DATA_MODEL.md](/Users/ainem/token_eco/docs/DATA_MODEL.md)
+- UI guide: [docs/UI_GUIDE.md](/Users/ainem/token_eco/docs/UI_GUIDE.md)
+- Test checklist: [docs/TEST_CHECKLIST.md](/Users/ainem/token_eco/docs/TEST_CHECKLIST.md)
+
+## First Implementation Track
+
+最初の実装トラックは、DBなしの端末内PoC。Phase 1では静的UIだけを作り、Phase 2でlocalStorageまたはIndexedDBを入れる。
+
+- React + TypeScript + Vite
+- Phase 1: `/kids`, `/parent/record`, `/parent/history`, `/parent/goal` の静的UI
+- Phase 2: localStorage または IndexedDB による端末内PoC
+- Phase 5: `/parent/shop`, `/parent/settings`
+
+Phase 1でやらないこと:
+
+- 永続化
+- 実際の取引作成
+- 実際の取り消し処理
+- 商品設定
+- 基本設定
+- PWA/Wake Lock
+- PINの実 enforcement
+
+## Non-Negotiables
+
+- 子ども画面から台帳を変更できないこと
+- 残高は `transactions` の合計から算出すること
+- 物理タグとアプリ内貯金を分けて表示すること
+- 子ども画面に円換算と履歴を出さないこと
+- 罰金・減点・没収を主機能にしないこと
+- 取引は削除せず、取り消し取引で補正すること

@@ -1,0 +1,15 @@
+{
+  "name": "子ども向けタグ管理",
+  "short_name": "タグ管理",
+  "start_url": "/kids",
+  "display": "standalone",
+  "background_color": "#fff8e7",
+  "theme_color": "#f6c445",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
