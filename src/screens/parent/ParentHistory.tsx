@@ -1,18 +1,18 @@
 import { RotateCcw } from "lucide-react";
 import { ItemIcon } from "../../components/common/ItemIcon";
 import { ParentSection } from "../../components/parent/ParentSection";
-import { children, transactions } from "../../data/sampleData";
 import type { ItemPreset, Transaction } from "../../domain/types";
+import type { AppState } from "../../state/appState";
 
-export function ParentHistory() {
-  const sorted = [...transactions].sort((a, b) => b.occurredAt.localeCompare(a.occurredAt));
+export function ParentHistory({ state }: { state: AppState }) {
+  const sorted = [...state.transactions].sort((a, b) => b.occurredAt.localeCompare(a.occurredAt));
 
   return (
     <div className="parent-page">
       <ParentSection title="履歴" caption="削除せず、取り消し取引で補正します">
         <div className="history-list">
           {sorted.map((transaction) => (
-            <HistoryRow key={transaction.id} transaction={transaction} />
+            <HistoryRow key={transaction.id} transaction={transaction} state={state} />
           ))}
         </div>
       </ParentSection>
@@ -20,8 +20,8 @@ export function ParentHistory() {
   );
 }
 
-function HistoryRow({ transaction }: { transaction: Transaction }) {
-  const child = children.find((item) => item.id === transaction.childId);
+function HistoryRow({ transaction, state }: { transaction: Transaction; state: AppState }) {
+  const child = state.children.find((item) => item.id === transaction.childId);
   const preset = getPreset(transaction);
 
   return (
@@ -35,9 +35,9 @@ function HistoryRow({ transaction }: { transaction: Transaction }) {
       <b className={transaction.amount >= 0 ? "amount plus" : "amount minus"}>
         {transaction.amount > 0 ? "+" : ""}{transaction.amount}こ
       </b>
-      <button className="cancel-button">
+      <button className="cancel-button" disabled title="Phase 3で実装">
         <RotateCcw size={16} />
-        取消
+        取消は次
       </button>
     </article>
   );

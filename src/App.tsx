@@ -4,6 +4,13 @@ import { KidsKiosk } from "./screens/KidsKiosk";
 import { ParentGoal } from "./screens/parent/ParentGoal";
 import { ParentHistory } from "./screens/parent/ParentHistory";
 import { ParentRecord } from "./screens/parent/ParentRecord";
+import {
+  createTransaction,
+  readStoredState,
+  writeStoredState,
+  type AppState,
+  type TransactionInput,
+} from "./state/appState";
 
 type Route = "/kids" | "/parent/record" | "/parent/history" | "/parent/goal";
 
@@ -21,6 +28,7 @@ function navigate(to: Route) {
 
 export function App() {
   const [route, setRoute] = useState<Route>(() => getRoute());
+  const [appState, setAppState] = useState<AppState>(() => readStoredState());
 
   useEffect(() => {
     const syncRoute = () => setRoute(getRoute());
@@ -28,10 +36,26 @@ export function App() {
     return () => window.removeEventListener("popstate", syncRoute);
   }, []);
 
+  const updateAppState = (recipe: (current: AppState) => AppState) => {
+    setAppState((current) => {
+      const next = recipe(current);
+      writeStoredState(next);
+      return next;
+    });
+  };
+
+  const addTransaction = (input: TransactionInput) => {
+    updateAppState((current) => ({
+      ...current,
+      transactions: [createTransaction(input), ...current.transactions],
+      lastUpdatedAt: new Date().toISOString(),
+    }));
+  };
+
   if (route === "/parent/record") {
     return (
       <ParentShell active={route}>
-        <ParentRecord />
+        <ParentRecord state={appState} onAddTransaction={addTransaction} />
       </ParentShell>
     );
   }
@@ -39,7 +63,7 @@ export function App() {
   if (route === "/parent/history") {
     return (
       <ParentShell active={route}>
-        <ParentHistory />
+        <ParentHistory state={appState} />
       </ParentShell>
     );
   }
@@ -47,12 +71,12 @@ export function App() {
   if (route === "/parent/goal") {
     return (
       <ParentShell active={route}>
-        <ParentGoal />
+        <ParentGoal state={appState} />
       </ParentShell>
     );
   }
 
-  return <KidsKiosk />;
+  return <KidsKiosk state={appState} />;
 }
 
 function ParentShell({ active, children }: { active: Route; children: ReactNode }) {

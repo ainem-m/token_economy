@@ -1,19 +1,19 @@
 import { Save } from "lucide-react";
 import { ItemIcon } from "../../components/common/ItemIcon";
 import { ParentSection } from "../../components/parent/ParentSection";
-import { children, goals } from "../../data/sampleData";
 import type { ItemPreset } from "../../domain/types";
+import type { AppState } from "../../state/appState";
 
 const presets: ItemPreset[] = ["blocks", "plush", "book", "gacha"];
 
-export function ParentGoal() {
-  const goal = goals[0];
+export function ParentGoal({ state }: { state: AppState }) {
+  const goal = state.goals.find((item) => item.status === "active") ?? state.goals[0];
 
   return (
     <div className="parent-page">
       <ParentSection title="目標を編集" caption="子どもごとに1つだけ">
         <div className="segmented-control">
-          {children.map((child) => (
+          {state.children.map((child) => (
             <button className={child.id === goal.childId ? "active" : ""} key={child.id}>{child.name}</button>
           ))}
         </div>

@@ -1,27 +1,100 @@
 import { Minus, Plus, Save } from "lucide-react";
+import { useMemo, useState } from "react";
 import { ItemIcon } from "../../components/common/ItemIcon";
 import { ParentSection } from "../../components/parent/ParentSection";
-import { children, shopItems } from "../../data/sampleData";
+import { getBalance } from "../../domain/calculations";
+import type { ShopItem, TransactionType } from "../../domain/types";
+import type { AppState, TransactionInput } from "../../state/appState";
 
-export function ParentRecord() {
+type RecordMode = "grant" | "spend";
+
+export function ParentRecord({
+  state,
+  onAddTransaction,
+}: {
+  state: AppState;
+  onAddTransaction: (input: TransactionInput) => void;
+}) {
+  const activeChildren = useMemo(
+    () => [...state.children].filter((child) => child.isActive).sort((a, b) => a.displayOrder - b.displayOrder),
+    [state.children],
+  );
+  const activeShopItems = useMemo(
+    () => [...state.shopItems].filter((item) => item.isActive).sort((a, b) => a.sortOrder - b.sortOrder),
+    [state.shopItems],
+  );
+  const [childId, setChildId] = useState(activeChildren[0]?.id ?? "");
+  const [mode, setMode] = useState<RecordMode>("grant");
+  const [amount, setAmount] = useState(state.settings.weeklyGrantAmount);
+  const [label, setLabel] = useState("土ようび");
+  const [note, setNote] = useState("物理タグの受け渡し");
+  const [message, setMessage] = useState("");
+  const balance = getBalance(state.transactions, childId);
+
+  const chooseWeeklyGrant = () => {
+    setMode("grant");
+    setAmount(state.settings.weeklyGrantAmount);
+    setLabel("土ようび");
+    setNote("物理タグの受け渡し");
+    setMessage("");
+  };
+
+  const chooseShopItem = (item: ShopItem) => {
+    setMode("spend");
+    setAmount(item.cost);
+    setLabel(item.name);
+    setNote("物理タグを回収");
+    setMessage("");
+  };
+
+  const record = () => {
+    const normalizedAmount = Math.max(1, amount);
+    const signedAmount = mode === "grant" ? normalizedAmount : -normalizedAmount;
+
+    if (mode === "spend" && normalizedAmount > balance) {
+      setMessage("残高が足りないため記録できません");
+      return;
+    }
+
+    onAddTransaction({
+      childId,
+      type: mode as TransactionType,
+      amount: signedAmount,
+      label: label.trim() || (mode === "grant" ? "もらった" : "つかった"),
+      note: note.trim(),
+    });
+    setMessage("記録しました");
+  };
+
   return (
     <div className="parent-page">
-      <ParentSection title="記録する" caption="Phase 1では見た目だけです">
+      <ParentSection title="記録する" caption={`いま ${balance}こ。物理タグの受け渡しを親が記録します`}>
         <div className="segmented-control">
-          {children.map((child) => (
-            <button className={child.id === "aoi" ? "active" : ""} key={child.id}>{child.name}</button>
+          {activeChildren.map((child) => (
+            <button className={child.id === childId ? "active" : ""} key={child.id} onClick={() => setChildId(child.id)}>
+              {child.name}
+            </button>
           ))}
         </div>
         <div className="action-choice">
-          <button className="positive active"><Plus size={20} />もらった</button>
-          <button className="negative"><Minus size={20} />つかった</button>
+          <button className={mode === "grant" ? "positive active" : "positive"} onClick={chooseWeeklyGrant}>
+            <Plus size={20} />もらった
+          </button>
+          <button className={mode === "spend" ? "negative active" : "negative"} onClick={() => setMode("spend")}>
+            <Minus size={20} />つかった
+          </button>
         </div>
       </ParentSection>
 
       <ParentSection title="クイック商品">
         <div className="quick-grid">
-          {shopItems.slice(0, 4).map((item) => (
-            <button className="quick-card" key={item.id}>
+          <button className={label === "土ようび" ? "quick-card selected" : "quick-card"} onClick={chooseWeeklyGrant}>
+            <ItemIcon preset="coin" />
+            <span>土ようび</span>
+            <b>+{state.settings.weeklyGrantAmount}こ</b>
+          </button>
+          {activeShopItems.slice(0, 3).map((item) => (
+            <button className={label === item.name ? "quick-card selected" : "quick-card"} key={item.id} onClick={() => chooseShopItem(item)}>
               <ItemIcon preset={item.imagePreset} />
               <span>{item.name}</span>
               <b>{item.cost}こ</b>
@@ -35,19 +108,21 @@ export function ParentRecord() {
           <label>
             数量
             <div className="static-stepper">
-              <button>-</button>
-              <input value="2" readOnly />
-              <button>+</button>
+              <button onClick={() => setAmount(Math.max(1, amount - 1))}>-</button>
+              <input value={amount} readOnly />
+              <button onClick={() => setAmount(amount + 1)}>+</button>
             </div>
           </label>
           <label>
             メモ
-            <input value="土ようびのタグ" readOnly />
+            <input value={note} onChange={(event) => setNote(event.target.value)} />
           </label>
         </div>
       </ParentSection>
 
-      <button className="primary-action">
+      {message && <p className={message.includes("できません") ? "record-message error" : "record-message"}>{message}</p>}
+
+      <button className="primary-action" onClick={record}>
         <Save size={20} />
         記録する
       </button>

@@ -30,6 +30,11 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
 .kids-kiosk {
   min-height: 100vh;
   padding: clamp(18px, 3vw, 34px);
@@ -467,6 +472,12 @@ button {
   color: #ba2424;
 }
 
+.action-choice .negative.active {
+  border-color: #e48484;
+  background: #fff0f0;
+  color: #b91f1f;
+}
+
 .quick-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -479,6 +490,12 @@ button {
   gap: 3px;
   min-height: 112px;
   padding: 12px;
+}
+
+.quick-card.selected {
+  border-color: #1e78d3;
+  background: #edf6ff;
+  box-shadow: inset 0 0 0 1px #1e78d3;
 }
 
 .quick-card span {
@@ -546,6 +563,22 @@ input {
   color: #fff;
   font-weight: 900;
   box-shadow: 0 10px 22px rgba(30, 120, 211, 0.24);
+}
+
+.record-message {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid #b9dfc0;
+  border-radius: 12px;
+  background: #effaf0;
+  color: #1e7730;
+  font-weight: 900;
+}
+
+.record-message.error {
+  border-color: #f0b5b5;
+  background: #fff0f0;
+  color: #bd2424;
 }
 
 .parent-nav {

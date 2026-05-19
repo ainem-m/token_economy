@@ -1,9 +1,9 @@
-import { children, goals, settings, shopItems, transactions } from "../data/sampleData";
 import { ChildTokenPanel } from "../components/kids/ChildTokenPanel";
+import type { AppState } from "../state/appState";
 
-export function KidsKiosk() {
-  const activeChildren = [...children].filter((child) => child.isActive).sort((a, b) => a.displayOrder - b.displayOrder);
-  const activeGoals = goals.filter((goal) => goal.status === "active");
+export function KidsKiosk({ state }: { state: AppState }) {
+  const activeChildren = [...state.children].filter((child) => child.isActive).sort((a, b) => a.displayOrder - b.displayOrder);
+  const activeGoals = state.goals.filter((goal) => goal.status === "active");
 
   return (
     <main className="kids-kiosk">
@@ -12,7 +12,7 @@ export function KidsKiosk() {
           <p>みんなのタグ</p>
           <h1>きょうの タグばこ</h1>
         </div>
-        <span className="last-updated">さいごのこうしん 5/19 23:30</span>
+        <span className="last-updated">さいごのこうしん {formatUpdatedAt(state.lastUpdatedAt)}</span>
       </header>
       <div className="children-grid">
         {activeChildren.map((child) => {
@@ -22,13 +22,22 @@ export function KidsKiosk() {
               key={child.id}
               child={child}
               goal={goal}
-              settings={settings}
-              shopItems={shopItems}
-              transactions={transactions}
+              settings={state.settings}
+              shopItems={state.shopItems}
+              transactions={state.transactions}
             />
           );
         })}
       </div>
     </main>
   );
+}
+
+function formatUpdatedAt(value: string): string {
+  return new Intl.DateTimeFormat("ja-JP", {
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value));
 }
