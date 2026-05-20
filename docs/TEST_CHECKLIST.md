@@ -24,12 +24,12 @@ Child kiosk:
 - token counts also have repeated icons for non-readers
 - saved tokens are visually distinct from total tokens
 - goals and remaining counts are visible
-- buyable items are visible
 - achieved sample can show `たっせい！` once without duplicate badges
 - no spend button
 - no grant button
 - no cancel button
 - no settings controls
+- no buyable item list
 - no transaction history
 - no yen conversion
 - no ranking or comparison language

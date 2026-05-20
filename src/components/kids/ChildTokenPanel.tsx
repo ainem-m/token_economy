@@ -1,5 +1,4 @@
 import { PiggyBank } from "lucide-react";
-import { ItemIcon } from "../common/ItemIcon";
 import { ProgressBar } from "../common/ProgressBar";
 import {
   getBalance,
@@ -7,19 +6,17 @@ import {
   getSavedTokens,
   isGoalAchieved,
 } from "../../domain/calculations";
-import type { Child, Goal, Settings, ShopItem, Transaction } from "../../domain/types";
+import type { Child, Goal, Settings, Transaction } from "../../domain/types";
 
 export function ChildTokenPanel({
   child,
   goal,
   settings,
-  shopItems,
   transactions,
 }: {
   child: Child;
   goal: Goal;
   settings: Settings;
-  shopItems: ShopItem[];
   transactions: Transaction[];
 }) {
   const balance = getBalance(transactions, child.id);
@@ -27,7 +24,6 @@ export function ChildTokenPanel({
   const savedTokens = getSavedTokens(balance, settings);
   const remaining = getGoalRemaining(balance, goal);
   const achieved = isGoalAchieved(balance, goal);
-  const affordableItems = shopItems.filter((item) => item.isActive && item.cost <= balance).slice(0, 4);
 
   return (
     <section className={`child-panel ${child.color}`} aria-label={`${child.name}のタグ`}>
@@ -66,20 +62,6 @@ export function ChildTokenPanel({
           <p className={achieved ? "goal-status achieved" : "goal-status"}>
             {achieved ? "たっせい！" : `あと ${remaining} こ`}
           </p>
-        </div>
-        <ItemIcon preset={goal.imagePreset} large />
-      </div>
-
-      <div className="affordable-box">
-        <h3>いま かえるもの</h3>
-        <div className="affordable-list">
-          {affordableItems.map((item) => (
-            <article key={item.id} className="shop-chip">
-              <ItemIcon preset={item.imagePreset} />
-              <span>{item.name}</span>
-              <b>{item.cost}こ</b>
-            </article>
-          ))}
         </div>
       </div>
     </section>

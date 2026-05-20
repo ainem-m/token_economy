@@ -7,13 +7,7 @@ export function KidsKiosk({ state }: { state: AppState }) {
 
   return (
     <main className="kids-kiosk">
-      <header className="kiosk-header">
-        <div>
-          <p>みんなのタグ</p>
-          <h1>きょうの タグばこ</h1>
-        </div>
-        <span className="last-updated">さいごのこうしん {formatUpdatedAt(state.lastUpdatedAt)}</span>
-      </header>
+      <span className="last-updated">更新 {formatUpdatedAt(state.lastUpdatedAt)}</span>
       <div className="children-grid">
         {activeChildren.map((child) => {
           const goal = activeGoals.find((item) => item.childId === child.id) ?? activeGoals[0];
@@ -23,7 +17,6 @@ export function KidsKiosk({ state }: { state: AppState }) {
               child={child}
               goal={goal}
               settings={state.settings}
-              shopItems={state.shopItems}
               transactions={state.transactions}
             />
           );
