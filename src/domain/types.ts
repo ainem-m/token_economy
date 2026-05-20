@@ -37,6 +37,7 @@ export type Goal = {
   title: string;
   targetAmount: number;
   imagePreset: ItemPreset;
+  imageUrl?: string;
   status: GoalStatus;
 };
 

@@ -68,6 +68,7 @@ Principles:
 
 - Use large numerals for token counts
 - Pair token counts with repeated icons so the younger child can read quantity without numerals
+- Reserve a larger goal image area for user-provided images, with preset icons as fallback
 - Use color per child
 - Use icons or illustrations for tokens, goals, and shop items
 - Prefer progress bars over dense text

@@ -64,9 +64,21 @@ export function ChildTokenPanel({
             {achieved ? "たっせい！" : `あと ${remaining} こ`}
           </p>
         </div>
-        <ItemIcon preset={goal.imagePreset} large />
+        <GoalImage goal={goal} />
       </div>
     </section>
+  );
+}
+
+function GoalImage({ goal }: { goal: Goal }) {
+  if (goal.imageUrl) {
+    return <img className="goal-image" src={goal.imageUrl} alt={goal.title} />;
+  }
+
+  return (
+    <div className="goal-image preset" aria-label={goal.title}>
+      <ItemIcon preset={goal.imagePreset} large />
+    </div>
   );
 }
 

@@ -24,7 +24,7 @@ Child kiosk:
 - token counts also have repeated icons for non-readers
 - saved tokens are visually distinct from total tokens
 - goals and remaining counts are visible
-- goal image is visible
+- goal image area is large enough for user-provided images and has a preset fallback
 - achieved sample can show `たっせい！` once without duplicate badges
 - no spend button
 - no grant button

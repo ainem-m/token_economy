@@ -243,13 +243,35 @@ button:disabled {
 
 .goal-box {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(128px, 28%);
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   padding: 16px;
   border: 2px solid #d7e8c0;
   border-radius: 18px;
   background: #f7ffed;
+}
+
+.goal-image {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid rgba(193, 169, 127, 0.7);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  object-fit: contain;
+}
+
+.goal-image.preset {
+  border-style: dashed;
+}
+
+.goal-image .item-icon.large {
+  width: clamp(82px, 12vw, 132px);
+  height: clamp(82px, 12vw, 132px);
+  font-size: clamp(3.8rem, 9vw, 6.4rem);
 }
 
 .blue .goal-box {
@@ -748,7 +770,7 @@ input {
     grid-template-columns: 1fr;
   }
 
-  .goal-box .item-icon.large {
+  .goal-image {
     justify-self: end;
   }
 
