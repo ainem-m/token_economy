@@ -1,4 +1,4 @@
-import { PiggyBank, Sparkles } from "lucide-react";
+import { PiggyBank } from "lucide-react";
 import { ItemIcon } from "../common/ItemIcon";
 import { ProgressBar } from "../common/ProgressBar";
 import {
@@ -37,25 +37,23 @@ export function ChildTokenPanel({
           <p>{child.ageLabel}</p>
           <h2>{child.name}</h2>
         </div>
-        {achieved && (
-          <div className="achieved-badge">
-            <Sparkles size={20} />
-            たっせい！
-          </div>
-        )}
       </header>
 
       <div className="token-summary">
         <div className="total-token">
-          <span className="star-coin">★</span>
-          <strong>{displayBalance}</strong>
-          <span>こ</span>
+          <div className="token-number">
+            <span className="star-coin">★</span>
+            <strong>{displayBalance}</strong>
+            <span>こ</span>
+          </div>
+          <TokenIconStrip count={displayBalance} icon="★" label={`${displayBalance}このタグ`} />
         </div>
         <div className="token-breakdown">
           <div>
             <PiggyBank size={24} />
             <span>ちょきん</span>
             <b>{savedTokens}</b>
+            <TokenIconStrip count={savedTokens} icon="●" label={`${savedTokens}このちょきん`} compact />
           </div>
         </div>
       </div>
@@ -85,5 +83,25 @@ export function ChildTokenPanel({
         </div>
       </div>
     </section>
+  );
+}
+
+function TokenIconStrip({
+  count,
+  icon,
+  label,
+  compact = false,
+}: {
+  count: number;
+  icon: string;
+  label: string;
+  compact?: boolean;
+}) {
+  return (
+    <div className={compact ? "token-icons compact" : "token-icons"} aria-label={label}>
+      {Array.from({ length: count }, (_, index) => (
+        <span key={index}>{icon}</span>
+      ))}
+    </div>
   );
 }

@@ -22,11 +22,12 @@ Each child panel shows:
 - 名前
 - 合計タグ
 - アプリ貯金
+- 合計タグとアプリ貯金の個数分のアイコン
 - 目標
 - 目標まであと何個
 - 進捗バー
 - 今日買えるもの
-- 達成時の「たっせい！」
+- 達成時の「たっせい！」は1箇所だけ
 
 Do not show:
 
@@ -64,6 +65,7 @@ Principles:
 ## Visual Rules
 
 - Use large numerals for token counts
+- Pair token counts with repeated icons so the younger child can read quantity without numerals
 - Use color per child
 - Use icons or illustrations for tokens, goals, and shop items
 - Prefer progress bars over dense text

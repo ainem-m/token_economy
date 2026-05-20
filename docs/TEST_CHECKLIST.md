@@ -21,10 +21,11 @@ Child kiosk:
 
 - two children are visible
 - token numbers are readable
+- token counts also have repeated icons for non-readers
 - saved tokens are visually distinct from total tokens
 - goals and remaining counts are visible
 - buyable items are visible
-- achieved sample can show `たっせい！`
+- achieved sample can show `たっせい！` once without duplicate badges
 - no spend button
 - no grant button
 - no cancel button
