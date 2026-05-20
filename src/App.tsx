@@ -195,7 +195,7 @@ export function App() {
     );
   }
 
-  return <KidsKiosk state={appState} />;
+  return <KidsKiosk state={appState} onOpenParentRecord={() => navigate("/parent/record")} />;
 }
 
 function ParentLock({ invalid, onUnlock }: { invalid: boolean; onUnlock: (pin: string) => void }) {

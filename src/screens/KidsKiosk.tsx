@@ -1,12 +1,16 @@
+import { ClipboardEdit } from "lucide-react";
 import { ChildTokenPanel } from "../components/kids/ChildTokenPanel";
 import type { AppState } from "../state/appState";
 
-export function KidsKiosk({ state }: { state: AppState }) {
+export function KidsKiosk({ state, onOpenParentRecord }: { state: AppState; onOpenParentRecord: () => void }) {
   const activeChildren = [...state.children].filter((child) => child.isActive).sort((a, b) => a.displayOrder - b.displayOrder);
   const activeGoals = state.goals.filter((goal) => goal.status === "active");
 
   return (
     <main className="kids-kiosk">
+      <button className="kiosk-parent-link" onClick={onOpenParentRecord} aria-label="親の記録画面へ">
+        <ClipboardEdit size={18} />
+      </button>
       <span className="last-updated">更新 {formatUpdatedAt(state.lastUpdatedAt)}</span>
       <div className="children-grid">
         {activeChildren.map((child) => {

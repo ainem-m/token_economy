@@ -41,6 +41,28 @@ button:disabled {
   padding: clamp(18px, 3vw, 34px);
 }
 
+.kiosk-parent-link {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(204, 184, 147, 0.7);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.72);
+  color: #7a6545;
+  box-shadow: 0 8px 20px rgba(79, 52, 16, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+.kiosk-parent-link:focus-visible {
+  outline: 3px solid #1e78d3;
+  outline-offset: 3px;
+}
+
 .parent-topbar p,
 .section-heading p {
   margin: 0;
