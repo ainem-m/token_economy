@@ -1,5 +1,5 @@
-import { ClipboardEdit, History, Home, Target } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { ClipboardEdit, History, Home, LockKeyhole, Target } from "lucide-react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import {
   ApiForbiddenError,
   ApiUnavailableError,
@@ -25,6 +25,7 @@ import type { Transaction } from "./domain/types";
 type Route = "/kids" | "/parent/record" | "/parent/history" | "/parent/goal";
 
 const routes: Route[] = ["/kids", "/parent/record", "/parent/history", "/parent/goal"];
+const PARENT_PIN_STORAGE_KEY = "token-eco:parent-pin";
 
 function getRoute(): Route {
   const path = window.location.pathname;
@@ -41,6 +42,8 @@ export function App() {
   const [appState, setAppState] = useState<AppState>(() => readStoredState());
   const [account, setAccount] = useState<SessionAccount | undefined>();
   const [accessDenied, setAccessDenied] = useState(false);
+  const [parentPin, setParentPin] = useState(() => window.sessionStorage.getItem(PARENT_PIN_STORAGE_KEY) || "");
+  const [pinError, setPinError] = useState(false);
 
   useEffect(() => {
     const syncRoute = () => setRoute(getRoute());
@@ -52,16 +55,25 @@ export function App() {
     let active = true;
 
     const loadState = async () => {
+      if (route.startsWith("/parent") && !parentPin) {
+        setAccessDenied(true);
+        return;
+      }
+
       try {
-        const result = await fetchState(route.startsWith("/parent"));
+        const result = await fetchState(route.startsWith("/parent"), parentPin);
         if (!active) return;
         setAppState(result.state);
         setAccount(result.account);
         setAccessDenied(false);
+        setPinError(false);
       } catch (error) {
         if (!active) return;
         if (error instanceof ApiForbiddenError) {
+          window.sessionStorage.removeItem(PARENT_PIN_STORAGE_KEY);
+          setParentPin("");
           setAccessDenied(true);
+          setPinError(Boolean(parentPin));
           return;
         }
         if (!(error instanceof ApiUnavailableError)) {
@@ -76,7 +88,7 @@ export function App() {
     return () => {
       active = false;
     };
-  }, [route]);
+  }, [route, parentPin]);
 
   const updateAppState = (recipe: (current: AppState) => AppState) => {
     setAppState((current) => {
@@ -87,8 +99,13 @@ export function App() {
   };
 
   const addTransaction = async (input: TransactionInput) => {
+    if (!parentPin) {
+      setAccessDenied(true);
+      return;
+    }
+
     try {
-      const result = await postTransaction(input);
+      const result = await postTransaction(input, parentPin);
       setAppState(result.state);
       setAccount(result.account);
       setAccessDenied(false);
@@ -111,8 +128,13 @@ export function App() {
   };
 
   const cancelTransaction = async (source: Transaction, reason: string) => {
+    if (!parentPin) {
+      setAccessDenied(true);
+      return;
+    }
+
     try {
-      const result = await postCancelTransaction(source, reason);
+      const result = await postCancelTransaction(source, reason, parentPin);
       setAppState(result.state);
       setAccount(result.account);
       setAccessDenied(false);
@@ -134,15 +156,17 @@ export function App() {
     }));
   };
 
+  const unlockParent = (pin: string) => {
+    window.sessionStorage.setItem(PARENT_PIN_STORAGE_KEY, pin);
+    setParentPin(pin);
+    setAccessDenied(false);
+    setPinError(false);
+  };
+
   if (accessDenied && route.startsWith("/parent")) {
     return (
       <ParentShell active={route} account={account}>
-        <div className="parent-page">
-          <section className="parent-section">
-            <h2>親アカウントが必要です</h2>
-            <p>この画面は記録を変更できるため、親アカウントだけが使えます。</p>
-          </section>
-        </div>
+        <ParentLock onUnlock={unlockParent} invalid={pinError} />
       </ParentShell>
     );
   }
@@ -172,6 +196,40 @@ export function App() {
   }
 
   return <KidsKiosk state={appState} />;
+}
+
+function ParentLock({ invalid, onUnlock }: { invalid: boolean; onUnlock: (pin: string) => void }) {
+  const [pin, setPin] = useState("");
+
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    if (pin.trim()) onUnlock(pin.trim());
+  };
+
+  return (
+    <div className="parent-page">
+      <form className="parent-section pin-lock" onSubmit={submit}>
+        <div className="lock-mark" aria-hidden="true">
+          <LockKeyhole size={28} />
+        </div>
+        <div className="section-heading">
+          <p>親モード</p>
+          <h2>PINを入力</h2>
+        </div>
+        <input
+          autoFocus
+          inputMode="numeric"
+          pattern="[0-9]*"
+          type="password"
+          value={pin}
+          onChange={(event) => setPin(event.target.value)}
+          aria-label="親モードPIN"
+        />
+        {invalid && <p className="record-message error">PINが違います。</p>}
+        <button className="primary-action" type="submit">開く</button>
+      </form>
+    </div>
+  );
 }
 
 function ParentShell({ active, account, children }: { active: Route; account?: SessionAccount; children: ReactNode }) {

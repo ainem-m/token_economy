@@ -1,7 +1,7 @@
 import type { AppState, TransactionInput } from "../state/appState";
 import type { Transaction } from "../domain/types";
 
-export type AccountRole = "parent" | "child";
+export type AccountRole = "viewer";
 
 export type SessionAccount = {
   email: string;
@@ -26,31 +26,32 @@ export class ApiForbiddenError extends Error {
   }
 }
 
-export async function fetchState(parent: boolean): Promise<ApiState> {
-  return request(parent ? "/api/parent-state" : "/api/kiosk-state");
+export async function fetchState(parent: boolean, parentPin?: string): Promise<ApiState> {
+  return request(parent ? "/api/parent-state" : "/api/kiosk-state", undefined, parentPin);
 }
 
-export async function postTransaction(input: TransactionInput): Promise<ApiState> {
+export async function postTransaction(input: TransactionInput, parentPin: string): Promise<ApiState> {
   return request("/api/transactions", {
     method: "POST",
     body: JSON.stringify(input),
-  });
+  }, parentPin);
 }
 
-export async function postCancelTransaction(source: Transaction, reason: string): Promise<ApiState> {
+export async function postCancelTransaction(source: Transaction, reason: string, parentPin: string): Promise<ApiState> {
   return request(`/api/transactions/${encodeURIComponent(source.id)}/cancel`, {
     method: "POST",
     body: JSON.stringify({ reason }),
-  });
+  }, parentPin);
 }
 
-async function request(path: string, init?: RequestInit): Promise<ApiState> {
+async function request(path: string, init?: RequestInit, parentPin?: string): Promise<ApiState> {
   let response: Response;
   try {
     response = await fetch(path, {
       ...init,
       headers: {
         "content-type": "application/json",
+        ...(parentPin ? { "x-token-eco-parent-pin": parentPin } : {}),
         ...init?.headers,
       },
     });

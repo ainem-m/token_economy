@@ -1,17 +1,16 @@
-import { createPublicKey, webcrypto } from "node:crypto";
-import { findAccount } from "./db.mjs";
+import { createPublicKey, timingSafeEqual, webcrypto } from "node:crypto";
 
 const DEV_AUTH = process.env.TOKEN_ECO_AUTH_MODE !== "cloudflare";
 const TEAM_DOMAIN = process.env.CLOUDFLARE_TEAM_DOMAIN;
 const POLICY_AUD = process.env.CLOUDFLARE_POLICY_AUD;
+const PARENT_PIN = process.env.TOKEN_ECO_PARENT_PIN || "2525";
 
 let jwksCache = null;
 
 export async function authenticate(request) {
   if (DEV_AUTH) {
-    const role = request.headers["x-token-eco-role"] === "child" ? "child" : "parent";
-    const email = String(request.headers["x-token-eco-email"] || `${role}@local.dev`).toLowerCase();
-    return { email, role };
+    const email = String(request.headers["x-token-eco-email"] || "local@token-eco.dev").toLowerCase();
+    return { email, role: "viewer" };
   }
 
   const token = request.headers["cf-access-jwt-assertion"];
@@ -19,11 +18,17 @@ export async function authenticate(request) {
 
   const claims = await verifyAccessJwt(token);
   const email = String(claims.email || "").toLowerCase();
-  return findAccount(email);
+  return { email, role: "viewer" };
 }
 
-export function requireParent(account) {
-  return account?.role === "parent";
+export function requireParentPin(request) {
+  const pin = String(request.headers["x-token-eco-parent-pin"] || "");
+  const expected = String(PARENT_PIN);
+  const actualBuffer = Buffer.from(pin);
+  const expectedBuffer = Buffer.from(expected);
+
+  if (actualBuffer.length !== expectedBuffer.length) return false;
+  return timingSafeEqual(actualBuffer, expectedBuffer);
 }
 
 async function verifyAccessJwt(token) {

@@ -67,14 +67,14 @@ weeklyGrantAmount = 2
 - 商品価格設定
 - 基本設定
 
-親画面はPINまたは管理モードで保護する。
+親画面はPINで保護する。
 
-VPS/Cloudflare Tunnel版では、PINだけではなくアカウントロールで保護する。
+VPS/Cloudflare Tunnel版では、Cloudflare Accessを外側の門として使い、親操作はアプリ内PINで保護する。
 
-- child account: `/kids` 表示のみ
-- parent account: `/kids` 表示と `/parent/*` 編集
-- unknown account: deny
-- API writes are parent-only on the server
+- allowed Cloudflare Access user: `/kids` 表示
+- valid parent PIN: `/parent/*` 編集
+- unknown Cloudflare Access user: deny before app
+- API writes require the parent PIN on the server
 
 ## Transactions
 

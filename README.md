@@ -63,20 +63,19 @@ The Node server binds to `127.0.0.1` by default. Override with `HOST=0.0.0.0` on
 
 The server stores SQLite data under `data/` by default. `data/` is intentionally ignored by git.
 
-Local development auth defaults to a parent account. To simulate a child account when calling API directly, send:
+Local development auth allows API reads without Cloudflare. Parent API calls still require the app PIN header:
 
 ```text
-x-token-eco-role: child
+x-token-eco-parent-pin: 2525
 ```
 
-Cloudflare Access mode uses:
+Cloudflare Access mode uses Cloudflare as the outer gate. Parent actions are unlocked inside the app with `TOKEN_ECO_PARENT_PIN`:
 
 ```bash
 TOKEN_ECO_AUTH_MODE=cloudflare
 CLOUDFLARE_TEAM_DOMAIN=https://<team-name>.cloudflareaccess.com
 CLOUDFLARE_POLICY_AUD=<access-application-aud>
-TOKEN_ECO_PARENT_EMAILS=parent@example.com
-TOKEN_ECO_CHILD_EMAILS=child@example.com
+TOKEN_ECO_PARENT_PIN=2525
 ```
 
 ## Non-Negotiables

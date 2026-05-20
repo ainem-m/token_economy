@@ -117,14 +117,14 @@ Expect:
 - two children visible in kiosk mode
 - parent controls reachable with thumb on mobile
 
-## Phase 7: VPS Auth And Roles
+## Phase 7: VPS Auth And Parent PIN
 
-- authenticated child account can open `/kids`
-- authenticated child account cannot open `/parent/*`
-- authenticated child account cannot create/cancel/update records through API
-- authenticated parent account can open `/parent/*`
-- authenticated parent account can create/cancel/update records
-- unknown authenticated email is denied
+- authenticated Cloudflare Access user can open `/kids`
+- `/parent/*` shows a PIN lock before parent controls
+- requests without the parent PIN cannot create/cancel/update records through API
+- valid parent PIN can unlock `/parent/*`
+- valid parent PIN can create/cancel/update records
+- Cloudflare Access allowlist denies unknown users before they reach the app
 - Cloudflare Access JWT is validated server-side
 
 ## Phase 8+: Kiosk Resilience

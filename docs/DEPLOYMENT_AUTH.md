@@ -8,8 +8,8 @@ Run the app on a VPS and expose it through Cloudflare Tunnel.
 
 Access behavior:
 
-- child account: can view `/kids`
-- parent account: can view `/kids` and edit under `/parent/*`
+- allowed Cloudflare Access users can view `/kids`
+- parent actions under `/parent/*` are unlocked with an in-app PIN
 - children must never be able to mutate the ledger
 
 ## Recommended Architecture
@@ -25,60 +25,53 @@ browser
 
 Cloudflare Tunnel publishes the VPS-local service without opening inbound VPS ports.
 
-Cloudflare Access is the outer authentication layer. The app server still verifies the Access token and maps the authenticated email to an application role.
+Cloudflare Access is the outer authentication layer. The app server still verifies the Access token so only allowed family users can reach API data. Parent write access is checked separately with an app PIN.
 
 ## Why The App Needs Server-Side Auth
 
-The current local PoC stores state in browser `localStorage`. That is fine for UI and workflow testing, but it is not enough for real account roles.
+The current local PoC stores state in browser `localStorage`. That is fine for UI and workflow testing, but it is not enough for shared-device parent permissions.
 
-Do not implement real parent/child permission by hiding buttons in React only. A child browser can still call client code or API endpoints unless the server denies mutations.
+Do not implement real parent permission by hiding buttons in React only. A child browser can still call client code or API endpoints unless the server denies mutations.
 
 Required rule:
 
 ```text
-all writes must be checked on the server
+all writes must require the parent PIN on the server
 ```
 
-## Account Model
+## Parent PIN Model
 
-Initial account model:
+Initial authorization model:
 
-```ts
-type AccountRole = "parent" | "child";
-
-type Account = {
-  id: string;
-  email: string;
-  role: AccountRole;
-  childId?: string;
-  isActive: boolean;
-};
+```text
+Cloudflare Access allowlist: family members who may reach the app
+TOKEN_ECO_PARENT_PIN: shared parent PIN required for /parent/* and writes
 ```
 
 Rules:
 
-- `parent` can read all family data and perform ledger/goal/settings writes.
-- `child` can only read the kiosk display.
-- `child.childId` can be used later if each child gets a personal display, but the initial kiosk can still show both children.
-- Unknown authenticated emails are denied by default.
+- `/kids` is display-only and does not require the app PIN.
+- `/parent/*` requires the app PIN.
+- Ledger writes require the app PIN on the server.
+- Cloudflare logout/account switching is not part of the parent/child separation.
 
 ## Route Policy
 
 Frontend routes:
 
-- `/kids`: allowed for `parent` and `child`
-- `/parent/*`: allowed for `parent` only
+- `/kids`: allowed for any Cloudflare Access user
+- `/parent/*`: requires parent PIN
 
 API policy:
 
-- `GET /api/kiosk-state`: `parent` or `child`
-- `GET /api/parent-state`: `parent`
-- `POST /api/transactions`: `parent`
-- `POST /api/transactions/:id/cancel`: `parent`
-- `POST /api/goals`: `parent`
-- `POST /api/settings`: `parent`
+- `GET /api/kiosk-state`: Cloudflare Access user
+- `GET /api/parent-state`: parent PIN
+- `POST /api/transactions`: parent PIN
+- `POST /api/transactions/:id/cancel`: parent PIN
+- `POST /api/goals`: parent PIN
+- `POST /api/settings`: parent PIN
 
-The child kiosk must continue to be display-only even if loaded from a child account.
+The child kiosk must continue to be display-only.
 
 ## Cloudflare Access
 
@@ -88,7 +81,7 @@ Recommended first setup:
 
 - one self-hosted Access application for `token.example.com`
 - One-time PIN or an IdP such as Google as the login method
-- explicit allowlist of parent and child emails
+- explicit allowlist of family emails
 - no `Bypass` policy for application routes
 - do not use broad `Everyone` or all-valid-email allow rules
 
@@ -114,9 +107,9 @@ Validation checks:
 - audience
 - email claim
 
-After validation, look up the email in the local `accounts` table and attach `role` to the request context.
+After validation, attach the email to the request context for display/debugging. Do not use Cloudflare email as the parent/child permission boundary in the initial PoC.
 
-Do not trust a role sent by the browser.
+Do not trust a role sent by the browser. Do not trust React-only route hiding for parent actions.
 
 ## VPS Runtime Shape
 
@@ -144,7 +137,7 @@ Default runtime values:
 - port: `8787`
 - host: `127.0.0.1`
 - SQLite path: `data/token-eco.sqlite`
-- auth mode: local dev parent account unless `TOKEN_ECO_AUTH_MODE=cloudflare`
+- auth mode: local dev API access unless `TOKEN_ECO_AUTH_MODE=cloudflare`
 
 Cloudflare Access mode:
 
@@ -152,8 +145,7 @@ Cloudflare Access mode:
 TOKEN_ECO_AUTH_MODE=cloudflare
 CLOUDFLARE_TEAM_DOMAIN=https://<team-name>.cloudflareaccess.com
 CLOUDFLARE_POLICY_AUD=<access-application-aud>
-TOKEN_ECO_PARENT_EMAILS=parent@example.com
-TOKEN_ECO_CHILD_EMAILS=child@example.com
+TOKEN_ECO_PARENT_PIN=2525
 npm start
 ```
 
@@ -163,11 +155,10 @@ Cloudflare Tunnel should point to the local service:
 http://localhost:8787
 ```
 
-In local dev mode, API tests can simulate role headers:
+Parent API calls must send the PIN:
 
 ```text
-x-token-eco-role: parent
-x-token-eco-role: child
+x-token-eco-parent-pin: 2525
 ```
 
 ## Phase Order
@@ -175,7 +166,7 @@ x-token-eco-role: child
 1. Add an API/data-access boundary while keeping local dev simple.
 2. Move persistence from `localStorage` to SQLite + API.
 3. Add Cloudflare Access token verification middleware.
-4. Add account role mapping and route guards.
+4. Add parent PIN route guards.
 5. Deploy to VPS behind Cloudflare Tunnel.
 6. Add backup and basic operational checks.
 

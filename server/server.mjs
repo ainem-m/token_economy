@@ -1,7 +1,7 @@
 import { createReadStream, existsSync } from "node:fs";
 import { createServer } from "node:http";
 import path from "node:path";
-import { authenticate, requireParent } from "./auth.mjs";
+import { authenticate, requireParentPin } from "./auth.mjs";
 import { addTransaction, cancelTransaction, initDb, readAppState } from "./db.mjs";
 
 const PORT = Number(process.env.PORT || 8787);
@@ -41,8 +41,8 @@ async function handleApi(request, response) {
   }
 
   if (url.pathname.startsWith("/api/parent") || isWriteRequest(request, url)) {
-    if (!requireParent(account)) {
-      sendJson(response, 403, { error: "parent_role_required" });
+    if (!requireParentPin(request)) {
+      sendJson(response, 403, { error: "parent_pin_required" });
       return;
     }
   }

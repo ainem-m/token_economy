@@ -27,12 +27,6 @@ export function initDb() {
       occurred_at text not null
     );
 
-    create table if not exists accounts (
-      email text primary key,
-      role text not null check (role in ('parent', 'child')),
-      child_id text,
-      is_active integer not null default 1
-    );
   `);
 
   seedDocument("settings", seedState.settings);
@@ -62,28 +56,10 @@ export function initDb() {
       );
     }
   }
-
-  seedAccounts();
 }
 
 function seedDocument(key, value) {
   db.prepare("insert or ignore into documents (key, value) values (?, ?)").run(key, JSON.stringify(value));
-}
-
-function seedAccounts() {
-  const parentEmails = parseEmailList(process.env.TOKEN_ECO_PARENT_EMAILS);
-  const childEmails = parseEmailList(process.env.TOKEN_ECO_CHILD_EMAILS);
-  const insert = db.prepare("insert or ignore into accounts (email, role, child_id, is_active) values (?, ?, ?, 1)");
-
-  for (const email of parentEmails) insert.run(email, "parent", null);
-  for (const email of childEmails) insert.run(email, "child", null);
-}
-
-function parseEmailList(value) {
-  return (value || "")
-    .split(",")
-    .map((item) => item.trim().toLowerCase())
-    .filter(Boolean);
 }
 
 export function readAppState() {
@@ -126,17 +102,6 @@ export function cancelTransaction(sourceId, reason) {
     note: reason,
     relatedTransactionId: source.id,
   });
-}
-
-export function findAccount(email) {
-  if (!email) return null;
-  const row = db.prepare("select email, role, child_id, is_active from accounts where email = ?").get(email.toLowerCase());
-  if (!row || row.is_active !== 1) return null;
-  return {
-    email: row.email,
-    role: row.role,
-    childId: row.child_id ?? undefined,
-  };
 }
 
 function readDocument(key) {

@@ -581,6 +581,29 @@ input {
   color: #bd2424;
 }
 
+.pin-lock {
+  justify-items: stretch;
+  padding: 24px 18px;
+}
+
+.lock-mark {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border: 1px solid #cbd9e7;
+  border-radius: 50%;
+  background: #edf6ff;
+  color: #1e78d3;
+}
+
+.pin-lock input {
+  min-height: 58px;
+  text-align: center;
+  font-size: 1.7rem;
+  letter-spacing: 0.2em;
+}
+
 .parent-nav {
   position: fixed;
   right: 50%;

@@ -145,25 +145,24 @@ Done:
 - 子どもタブレットへ反映される
 - 週次支給が二重付与されない
 
-## Phase 7: VPS Auth And Roles
+## Phase 7: VPS Auth And Parent PIN
 
 Goal:
 
-- Cloudflare Tunnel経由でアクセスし、子アカウントは表示、親アカウントは編集できる
+- Cloudflare Tunnel経由でアクセスし、親操作はアプリ内PINで保護できる
 
 Build:
 
 - Cloudflare Access JWT validation
-- account role mapping
-- parent-only API mutation guards
-- parent-only `/parent/*` route access
+- parent PIN API mutation guards
+- parent PIN `/parent/*` route access
 - child-safe `/kids` route
 
 Done:
 
-- child role cannot call write APIs
-- parent role can record/cancel/update goals
-- unknown authenticated emails are denied
+- write APIs reject requests without the parent PIN
+- parent PIN can unlock record/cancel/update goal workflows
+- Cloudflare Access allowlist limits who can reach the app
 - app works behind Cloudflare Tunnel
 
 ## Phase 8: Kiosk Hardening
