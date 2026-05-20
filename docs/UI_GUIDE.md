@@ -21,7 +21,6 @@ Each child panel shows:
 
 - 名前
 - 合計タグ
-- 手元タグ
 - アプリ貯金
 - 目標
 - 目標まであと何個
@@ -76,7 +75,6 @@ Principles:
 
 - `KidsKiosk`
 - `ChildTokenPanel`
-- `PhysicalTokenMeter`
 - `SavingsBadge`
 - `GoalCard`
 - `ProgressBar`
@@ -94,4 +92,3 @@ Principles:
 - `OfflineBanner`
 - `LastUpdatedLabel`
 - `TapEffectLayer`
-

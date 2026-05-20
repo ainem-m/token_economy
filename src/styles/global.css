@@ -159,7 +159,7 @@ button:disabled {
 
 .token-summary {
   display: grid;
-  grid-template-columns: minmax(180px, 1.05fr) minmax(170px, 0.95fr);
+  grid-template-columns: minmax(180px, 1fr) minmax(150px, 0.58fr);
   gap: 14px;
   align-items: stretch;
 }
@@ -202,7 +202,6 @@ button:disabled {
 
 .token-breakdown {
   display: grid;
-  gap: 10px;
 }
 
 .token-breakdown > div {
@@ -214,13 +213,6 @@ button:disabled {
   border: 1px solid #ead5af;
   border-radius: 16px;
   background: #fffdf8;
-}
-
-.token-breakdown > div:first-child::before {
-  content: "●●●";
-  color: #e6a313;
-  font-size: 22px;
-  letter-spacing: 2px;
 }
 
 .token-breakdown span {

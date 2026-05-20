@@ -95,7 +95,7 @@ Reusable UI components.
 Suggested split:
 
 - `common/`: buttons, progress bars, token badges, layout helpers
-- `kids/`: child kiosk panels, physical token meter, savings badge, affordable item list
+- `kids/`: child kiosk panels, savings badge, affordable item list
 - `parent/`: record form, history rows, goal form
 
 Avoid abstract component layers before duplication exists.
@@ -151,4 +151,3 @@ When moving to Phase 2:
 - keep `domain/` pure
 - keep `sampleData.ts` as seed/fallback data
 - do not mix persistence into visual components
-

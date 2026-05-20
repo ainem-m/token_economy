@@ -63,11 +63,11 @@ Build:
 - shopItems
 - settings
 - balance calculation
-- physical/saved token calculation
+- saved token calculation
 
 Done:
 
-- 親画面から記録すると `/kids` の合計タグ、手元タグ、アプリ貯金が変わる
+- 親画面から記録すると `/kids` の合計タグとアプリ貯金が変わる
 
 ## Phase 3: History And Cancel
 

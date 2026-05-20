@@ -157,7 +157,7 @@ function getGoalRemaining(balance: number, goal: Goal): number {
 }
 ```
 
-Normal parent spend flows should not allow spending below the current balance. If imported or corrupted data produces a negative balance, child-facing physical token and saved token displays are clamped at 0 while the parent/history side can still show the ledger problem.
+Normal parent spend flows should not allow spending below the current balance. If imported or corrupted data produces a negative balance, child-facing total token and saved token displays are clamped at 0 while the parent/history side can still show the ledger problem.
 
 ## Future SQL Notes
 

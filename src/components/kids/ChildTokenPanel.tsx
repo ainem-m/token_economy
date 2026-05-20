@@ -4,7 +4,6 @@ import { ProgressBar } from "../common/ProgressBar";
 import {
   getBalance,
   getGoalRemaining,
-  getPhysicalTokens,
   getSavedTokens,
   isGoalAchieved,
 } from "../../domain/calculations";
@@ -25,7 +24,6 @@ export function ChildTokenPanel({
 }) {
   const balance = getBalance(transactions, child.id);
   const displayBalance = Math.max(balance, 0);
-  const physicalTokens = getPhysicalTokens(balance, settings);
   const savedTokens = getSavedTokens(balance, settings);
   const remaining = getGoalRemaining(balance, goal);
   const achieved = isGoalAchieved(balance, goal);
@@ -54,10 +52,6 @@ export function ChildTokenPanel({
           <span>こ</span>
         </div>
         <div className="token-breakdown">
-          <div>
-            <span>てもと</span>
-            <b>{physicalTokens}</b>
-          </div>
           <div>
             <PiggyBank size={24} />
             <span>ちょきん</span>

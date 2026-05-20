@@ -21,7 +21,7 @@ Child kiosk:
 
 - two children are visible
 - token numbers are readable
-- physical tokens and saved tokens are visually distinct
+- saved tokens are visually distinct from total tokens
 - goals and remaining counts are visible
 - buyable items are visible
 - achieved sample can show `たっせい！`
@@ -61,7 +61,7 @@ Given `physicalTokenLimit = 3`:
 - balance 2 -> physical 2, saved 0
 - balance 3 -> physical 3, saved 0
 - balance 5 -> physical 3, saved 2
-- negative balance is blocked for normal spend flows; if corrupted data is displayed, physical and saved token display must not go below 0
+- negative balance is blocked for normal spend flows; if corrupted data is displayed, total and saved token display must not go below 0
 
 ## Phase 2+: Parent Record
 
@@ -69,7 +69,7 @@ Given `physicalTokenLimit = 3`:
 - spend adds negative transaction
 - transaction appears in history
 - child balance updates from transactions sum
-- physical/saved token display updates
+- total/saved token display updates
 - spend greater than current balance is blocked or requires explicit adjust/refund flow
 
 ## Phase 3+: History And Cancel
