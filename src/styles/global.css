@@ -243,6 +243,7 @@ button:disabled {
 
 .goal-box {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
   padding: 16px;
@@ -745,6 +746,10 @@ input {
   .token-summary,
   .goal-box {
     grid-template-columns: 1fr;
+  }
+
+  .goal-box .item-icon.large {
+    justify-self: end;
   }
 
   .form-grid {

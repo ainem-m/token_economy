@@ -1,4 +1,5 @@
 import { PiggyBank } from "lucide-react";
+import { ItemIcon } from "../common/ItemIcon";
 import { ProgressBar } from "../common/ProgressBar";
 import {
   getBalance,
@@ -63,6 +64,7 @@ export function ChildTokenPanel({
             {achieved ? "たっせい！" : `あと ${remaining} こ`}
           </p>
         </div>
+        <ItemIcon preset={goal.imagePreset} large />
       </div>
     </section>
   );
