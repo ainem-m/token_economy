@@ -2,9 +2,9 @@
 
 This repository builds a child-facing token economy PoC.
 
-Use [docs/CODEX_START_HERE.md](/Users/ainem/token_eco/docs/CODEX_START_HERE.md) as the first orientation document, and treat [PLAN.md](/Users/ainem/token_eco/PLAN.md) as the full source of truth.
+Use [docs/CODEX_START_HERE.md](docs/CODEX_START_HERE.md) as the first orientation document, and treat [PLAN.md](PLAN.md) as the full source of truth.
 
-Use [docs/PROJECT_STRUCTURE.md](/Users/ainem/token_eco/docs/PROJECT_STRUCTURE.md) for the Phase 1 file layout.
+Use [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for the Phase 1 file layout.
 
 ## Required Workflow
 
@@ -80,5 +80,5 @@ State:
 
 Verify against:
 
-- [docs/TEST_CHECKLIST.md](/Users/ainem/token_eco/docs/TEST_CHECKLIST.md)
-- current phase done criteria in [docs/IMPLEMENTATION_ROADMAP.md](/Users/ainem/token_eco/docs/IMPLEMENTATION_ROADMAP.md)
+- [docs/TEST_CHECKLIST.md](docs/TEST_CHECKLIST.md)
+- current phase done criteria in [docs/IMPLEMENTATION_ROADMAP.md](docs/IMPLEMENTATION_ROADMAP.md)

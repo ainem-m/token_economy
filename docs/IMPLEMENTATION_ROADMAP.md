@@ -1,6 +1,6 @@
 # Implementation Roadmap
 
-各Phaseは [AGENT_WORKFLOW.md](/Users/ainem/token_eco/docs/AGENT_WORKFLOW.md) の流れで進める。
+各Phaseは [AGENT_WORKFLOW.md](AGENT_WORKFLOW.md) の流れで進める。
 
 ## Phase 0: Documentation
 

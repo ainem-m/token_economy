@@ -2,17 +2,17 @@
 
 When starting a new implementation turn, read in this order:
 
-1. [README.md](/Users/ainem/token_eco/README.md)
-2. [docs/AGENT_WORKFLOW.md](/Users/ainem/token_eco/docs/AGENT_WORKFLOW.md)
-3. [docs/REQUIREMENTS.md](/Users/ainem/token_eco/docs/REQUIREMENTS.md)
+1. [README.md](../README.md)
+2. [docs/AGENT_WORKFLOW.md](AGENT_WORKFLOW.md)
+3. [docs/REQUIREMENTS.md](REQUIREMENTS.md)
 4. The specific doc for the current task:
-   - Data work: [docs/DATA_MODEL.md](/Users/ainem/token_eco/docs/DATA_MODEL.md)
-   - UI work: [docs/UI_GUIDE.md](/Users/ainem/token_eco/docs/UI_GUIDE.md)
-   - File layout: [docs/PROJECT_STRUCTURE.md](/Users/ainem/token_eco/docs/PROJECT_STRUCTURE.md)
-   - Phase planning: [docs/IMPLEMENTATION_ROADMAP.md](/Users/ainem/token_eco/docs/IMPLEMENTATION_ROADMAP.md)
-   - Deployment/auth: [docs/DEPLOYMENT_AUTH.md](/Users/ainem/token_eco/docs/DEPLOYMENT_AUTH.md)
-   - Verification: [docs/TEST_CHECKLIST.md](/Users/ainem/token_eco/docs/TEST_CHECKLIST.md)
-5. [PLAN.md](/Users/ainem/token_eco/PLAN.md) for the relevant phase before coding
+   - Data work: [docs/DATA_MODEL.md](DATA_MODEL.md)
+   - UI work: [docs/UI_GUIDE.md](UI_GUIDE.md)
+   - File layout: [docs/PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
+   - Phase planning: [docs/IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md)
+   - Deployment/auth: [docs/DEPLOYMENT_AUTH.md](DEPLOYMENT_AUTH.md)
+   - Verification: [docs/TEST_CHECKLIST.md](TEST_CHECKLIST.md)
+5. [PLAN.md](../PLAN.md) for the relevant phase before coding
 
 ## Default First Task
 

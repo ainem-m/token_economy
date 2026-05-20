@@ -2,7 +2,7 @@
 
 子ども向けトークン管理アプリのPoC。
 
-このリポジトリでは、[PLAN.md](/Users/ainem/token_eco/PLAN.md) を最上位の仕様書として扱う。実装者はまずこのREADMEと [docs/CODEX_START_HERE.md](/Users/ainem/token_eco/docs/CODEX_START_HERE.md) を読み、作業対象に応じて補助ドキュメントとPLAN.mdを確認する。
+このリポジトリでは、[PLAN.md](PLAN.md) を最上位の仕様書として扱う。実装者はまずこのREADMEと [docs/CODEX_START_HERE.md](docs/CODEX_START_HERE.md) を読み、作業対象に応じて補助ドキュメントとPLAN.mdを確認する。
 
 ## Product Goal
 
@@ -16,15 +16,15 @@
 
 ## Current Source Of Truth
 
-- Full plan: [PLAN.md](/Users/ainem/token_eco/PLAN.md)
-- Agent workflow: [docs/AGENT_WORKFLOW.md](/Users/ainem/token_eco/docs/AGENT_WORKFLOW.md)
-- Requirements summary: [docs/REQUIREMENTS.md](/Users/ainem/token_eco/docs/REQUIREMENTS.md)
-- Implementation phases: [docs/IMPLEMENTATION_ROADMAP.md](/Users/ainem/token_eco/docs/IMPLEMENTATION_ROADMAP.md)
-- Project structure: [docs/PROJECT_STRUCTURE.md](/Users/ainem/token_eco/docs/PROJECT_STRUCTURE.md)
-- Data model: [docs/DATA_MODEL.md](/Users/ainem/token_eco/docs/DATA_MODEL.md)
-- UI guide: [docs/UI_GUIDE.md](/Users/ainem/token_eco/docs/UI_GUIDE.md)
-- Test checklist: [docs/TEST_CHECKLIST.md](/Users/ainem/token_eco/docs/TEST_CHECKLIST.md)
-- Deployment/auth: [docs/DEPLOYMENT_AUTH.md](/Users/ainem/token_eco/docs/DEPLOYMENT_AUTH.md)
+- Full plan: [PLAN.md](PLAN.md)
+- Agent workflow: [docs/AGENT_WORKFLOW.md](docs/AGENT_WORKFLOW.md)
+- Requirements summary: [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md)
+- Implementation phases: [docs/IMPLEMENTATION_ROADMAP.md](docs/IMPLEMENTATION_ROADMAP.md)
+- Project structure: [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md)
+- Data model: [docs/DATA_MODEL.md](docs/DATA_MODEL.md)
+- UI guide: [docs/UI_GUIDE.md](docs/UI_GUIDE.md)
+- Test checklist: [docs/TEST_CHECKLIST.md](docs/TEST_CHECKLIST.md)
+- Deployment/auth: [docs/DEPLOYMENT_AUTH.md](docs/DEPLOYMENT_AUTH.md)
 
 ## First Implementation Track
 
