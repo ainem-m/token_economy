@@ -16,6 +16,7 @@ export type TransactionInput = {
   amount: number;
   label: string;
   note?: string;
+  relatedTransactionId?: string;
 };
 
 const STORAGE_KEY = "token-eco:poc-state:v1";
@@ -57,6 +58,18 @@ export function createTransaction(input: TransactionInput): Transaction {
     amount: input.amount,
     label: input.label,
     note: input.note || undefined,
+    relatedTransactionId: input.relatedTransactionId,
     occurredAt: new Date().toISOString(),
   };
+}
+
+export function createCancelTransaction(source: Transaction, reason: string): Transaction {
+  return createTransaction({
+    childId: source.childId,
+    type: "cancel",
+    amount: -source.amount,
+    label: `取り消し: ${source.label}`,
+    note: reason,
+    relatedTransactionId: source.id,
+  });
 }

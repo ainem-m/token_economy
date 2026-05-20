@@ -25,3 +25,7 @@ export function getGoalRemaining(balance: number, goal: Goal): number {
 export function isGoalAchieved(balance: number, goal: Goal): boolean {
   return getDisplayBalance(balance) >= goal.targetAmount;
 }
+
+export function isTransactionCancelled(transactions: Transaction[], transactionId: string): boolean {
+  return transactions.some((transaction) => transaction.relatedTransactionId === transactionId);
+}

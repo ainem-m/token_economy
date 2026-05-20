@@ -5,12 +5,14 @@ import { ParentGoal } from "./screens/parent/ParentGoal";
 import { ParentHistory } from "./screens/parent/ParentHistory";
 import { ParentRecord } from "./screens/parent/ParentRecord";
 import {
+  createCancelTransaction,
   createTransaction,
   readStoredState,
   writeStoredState,
   type AppState,
   type TransactionInput,
 } from "./state/appState";
+import type { Transaction } from "./domain/types";
 
 type Route = "/kids" | "/parent/record" | "/parent/history" | "/parent/goal";
 
@@ -52,6 +54,14 @@ export function App() {
     }));
   };
 
+  const cancelTransaction = (source: Transaction, reason: string) => {
+    updateAppState((current) => ({
+      ...current,
+      transactions: [createCancelTransaction(source, reason), ...current.transactions],
+      lastUpdatedAt: new Date().toISOString(),
+    }));
+  };
+
   if (route === "/parent/record") {
     return (
       <ParentShell active={route}>
@@ -63,7 +73,7 @@ export function App() {
   if (route === "/parent/history") {
     return (
       <ParentShell active={route}>
-        <ParentHistory state={appState} />
+        <ParentHistory state={appState} onCancelTransaction={cancelTransaction} />
       </ParentShell>
     );
   }
