@@ -122,7 +122,6 @@ Redirect `/` to `/kids` or render the same screen.
 Do not add:
 
 - `/parent/shop`
-- `/parent/settings`
 - backend routes
 - auth routes
 

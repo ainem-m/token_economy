@@ -104,6 +104,48 @@ export function cancelTransaction(sourceId, reason) {
   });
 }
 
+export function updateSettings(input) {
+  const current = readAppState();
+  const settings = normalizeSettings(input.settings, current.settings);
+  const children = normalizeChildren(input.children, current.children);
+  const updatedAt = new Date().toISOString();
+
+  writeDocument("settings", settings);
+  writeDocument("children", children);
+  writeDocument("lastUpdatedAt", updatedAt);
+}
+
+function normalizeSettings(input, fallback) {
+  return {
+    ...fallback,
+    tokenYen: positiveInteger(input?.tokenYen, fallback.tokenYen),
+    physicalTokenLimit: positiveInteger(input?.physicalTokenLimit, fallback.physicalTokenLimit),
+    weeklyGrantAmount: positiveInteger(input?.weeklyGrantAmount, fallback.weeklyGrantAmount),
+  };
+}
+
+function normalizeChildren(input, fallback) {
+  if (!Array.isArray(input)) return fallback;
+
+  return fallback.map((child) => {
+    const next = input.find((candidate) => candidate?.id === child.id);
+    if (!next) return child;
+    return {
+      ...child,
+      name: String(next.name || child.name).trim().slice(0, 16) || child.name,
+      ageLabel: String(next.ageLabel || child.ageLabel).trim().slice(0, 16) || child.ageLabel,
+      displayOrder: positiveInteger(next.displayOrder, child.displayOrder),
+      isActive: typeof next.isActive === "boolean" ? next.isActive : child.isActive,
+    };
+  });
+}
+
+function positiveInteger(value, fallback) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.max(1, Math.round(parsed));
+}
+
 function readDocument(key) {
   const row = db.prepare("select value from documents where key = ?").get(key);
   return row ? JSON.parse(row.value) : null;

@@ -1,10 +1,11 @@
-import { ClipboardEdit, History, Home, LockKeyhole, Target } from "lucide-react";
+import { ClipboardEdit, History, Home, LockKeyhole, Settings, Target } from "lucide-react";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import {
   ApiForbiddenError,
   ApiUnavailableError,
   fetchState,
   postCancelTransaction,
+  postSettings,
   postTransaction,
   type SessionAccount,
 } from "./api/client";
@@ -12,6 +13,7 @@ import { KidsKiosk } from "./screens/KidsKiosk";
 import { ParentGoal } from "./screens/parent/ParentGoal";
 import { ParentHistory } from "./screens/parent/ParentHistory";
 import { ParentRecord } from "./screens/parent/ParentRecord";
+import { ParentSettings } from "./screens/parent/ParentSettings";
 import {
   createCancelTransaction,
   createTransaction,
@@ -20,11 +22,11 @@ import {
   type AppState,
   type TransactionInput,
 } from "./state/appState";
-import type { Transaction } from "./domain/types";
+import type { Child, Settings as AppSettings, Transaction } from "./domain/types";
 
-type Route = "/kids" | "/parent/record" | "/parent/history" | "/parent/goal";
+type Route = "/kids" | "/parent/record" | "/parent/history" | "/parent/goal" | "/parent/settings";
 
-const routes: Route[] = ["/kids", "/parent/record", "/parent/history", "/parent/goal"];
+const routes: Route[] = ["/kids", "/parent/record", "/parent/history", "/parent/goal", "/parent/settings"];
 const PARENT_PIN_STORAGE_KEY = "token-eco:parent-pin";
 
 function getRoute(): Route {
@@ -156,6 +158,36 @@ export function App() {
     }));
   };
 
+  const saveSettings = async (input: { settings: AppSettings; children: Child[] }) => {
+    if (!parentPin) {
+      setAccessDenied(true);
+      return;
+    }
+
+    try {
+      const result = await postSettings(input, parentPin);
+      setAppState(result.state);
+      setAccount(result.account);
+      setAccessDenied(false);
+      return;
+    } catch (error) {
+      if (error instanceof ApiForbiddenError) {
+        setAccessDenied(true);
+        return;
+      }
+      if (!(error instanceof ApiUnavailableError)) {
+        console.error(error);
+      }
+    }
+
+    updateAppState((current) => ({
+      ...current,
+      settings: input.settings,
+      children: input.children,
+      lastUpdatedAt: new Date().toISOString(),
+    }));
+  };
+
   const unlockParent = (pin: string) => {
     window.sessionStorage.setItem(PARENT_PIN_STORAGE_KEY, pin);
     setParentPin(pin);
@@ -191,6 +223,14 @@ export function App() {
     return (
       <ParentShell active={route} account={account}>
         <ParentGoal state={appState} />
+      </ParentShell>
+    );
+  }
+
+  if (route === "/parent/settings") {
+    return (
+      <ParentShell active={route} account={account}>
+        <ParentSettings state={appState} onSaveSettings={saveSettings} />
       </ParentShell>
     );
   }
@@ -258,6 +298,10 @@ function ParentShell({ active, account, children }: { active: Route; account?: S
         <button className={active === "/parent/goal" ? "active" : ""} onClick={() => navigate("/parent/goal")}>
           <Target size={20} />
           <span>目標</span>
+        </button>
+        <button className={active === "/parent/settings" ? "active" : ""} onClick={() => navigate("/parent/settings")}>
+          <Settings size={20} />
+          <span>設定</span>
         </button>
       </nav>
     </main>

@@ -114,8 +114,8 @@ Goal:
 
 Build:
 
-- `/parent/shop`
-- `/parent/settings`
+- `/parent/settings` for child labels and core token rules
+- `/parent/shop` later
 - tokenYen
 - physicalTokenLimit
 - weeklyGrantAmount
@@ -123,8 +123,10 @@ Build:
 
 Done:
 
-- 商品価格を変えられる
+- 子どもの名前とラベルを変えられる
+- 週次支給数、物理タグ上限、円換算を変えられる
 - 設定値が表示計算に反映される
+- 商品価格を変えられる
 - 価格変更が過去取引に影響しない
 
 ## Phase 6: Sync And Persistence

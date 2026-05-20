@@ -33,7 +33,6 @@ Phase 1 exclusions:
 - no real ledger mutations
 - no real cancel logic
 - no `/parent/shop`
-- no `/parent/settings`
 - no PWA hardening
 - no PIN enforcement
 

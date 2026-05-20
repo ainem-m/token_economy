@@ -33,7 +33,9 @@
 - React + TypeScript + Vite
 - Phase 1: `/kids`, `/parent/record`, `/parent/history`, `/parent/goal` の静的UI
 - Phase 2: localStorage または IndexedDB による端末内PoC
-- Phase 5: `/parent/shop`, `/parent/settings`
+- Current VPS track: Node API + SQLite + parent PIN
+- Implemented parent settings: `/parent/settings`
+- Later: `/parent/shop`
 
 Phase 1でやらないこと:
 
@@ -41,7 +43,6 @@ Phase 1でやらないこと:
 - 実際の取引作成
 - 実際の取り消し処理
 - 商品設定
-- 基本設定
 - PWA/Wake Lock
 - PINの実 enforcement
 

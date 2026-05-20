@@ -44,6 +44,13 @@ export async function postCancelTransaction(source: Transaction, reason: string,
   }, parentPin);
 }
 
+export async function postSettings(state: Pick<AppState, "settings" | "children">, parentPin: string): Promise<ApiState> {
+  return request("/api/settings", {
+    method: "POST",
+    body: JSON.stringify(state),
+  }, parentPin);
+}
+
 async function request(path: string, init?: RequestInit, parentPin?: string): Promise<ApiState> {
   let response: Response;
   try {
