@@ -130,6 +130,46 @@ Recommended first VPS stack:
 
 This keeps the system small while allowing real multi-device sync and server-side permissions.
 
+## Current Repository Entry Point
+
+The repository now includes a small Node server entry point:
+
+```bash
+npm run build
+npm start
+```
+
+Default runtime values:
+
+- port: `8787`
+- host: `127.0.0.1`
+- SQLite path: `data/token-eco.sqlite`
+- auth mode: local dev parent account unless `TOKEN_ECO_AUTH_MODE=cloudflare`
+
+Cloudflare Access mode:
+
+```bash
+TOKEN_ECO_AUTH_MODE=cloudflare
+CLOUDFLARE_TEAM_DOMAIN=https://<team-name>.cloudflareaccess.com
+CLOUDFLARE_POLICY_AUD=<access-application-aud>
+TOKEN_ECO_PARENT_EMAILS=parent@example.com
+TOKEN_ECO_CHILD_EMAILS=child@example.com
+npm start
+```
+
+Cloudflare Tunnel should point to the local service:
+
+```text
+http://localhost:8787
+```
+
+In local dev mode, API tests can simulate role headers:
+
+```text
+x-token-eco-role: parent
+x-token-eco-role: child
+```
+
 ## Phase Order
 
 1. Add an API/data-access boundary while keeping local dev simple.

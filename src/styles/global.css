@@ -378,6 +378,17 @@ button:disabled {
   line-height: 1.1;
 }
 
+.account-label {
+  display: block;
+  max-width: 280px;
+  overflow: hidden;
+  color: #6c7f90;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .icon-button {
   display: grid;
   place-items: center;

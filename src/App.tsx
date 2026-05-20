@@ -1,5 +1,13 @@
 import { ClipboardEdit, History, Home, Target } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
+import {
+  ApiForbiddenError,
+  ApiUnavailableError,
+  fetchState,
+  postCancelTransaction,
+  postTransaction,
+  type SessionAccount,
+} from "./api/client";
 import { KidsKiosk } from "./screens/KidsKiosk";
 import { ParentGoal } from "./screens/parent/ParentGoal";
 import { ParentHistory } from "./screens/parent/ParentHistory";
@@ -31,12 +39,44 @@ function navigate(to: Route) {
 export function App() {
   const [route, setRoute] = useState<Route>(() => getRoute());
   const [appState, setAppState] = useState<AppState>(() => readStoredState());
+  const [account, setAccount] = useState<SessionAccount | undefined>();
+  const [accessDenied, setAccessDenied] = useState(false);
 
   useEffect(() => {
     const syncRoute = () => setRoute(getRoute());
     window.addEventListener("popstate", syncRoute);
     return () => window.removeEventListener("popstate", syncRoute);
   }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadState = async () => {
+      try {
+        const result = await fetchState(route.startsWith("/parent"));
+        if (!active) return;
+        setAppState(result.state);
+        setAccount(result.account);
+        setAccessDenied(false);
+      } catch (error) {
+        if (!active) return;
+        if (error instanceof ApiForbiddenError) {
+          setAccessDenied(true);
+          return;
+        }
+        if (!(error instanceof ApiUnavailableError)) {
+          console.error(error);
+        }
+        setAccessDenied(false);
+      }
+    };
+
+    void loadState();
+
+    return () => {
+      active = false;
+    };
+  }, [route]);
 
   const updateAppState = (recipe: (current: AppState) => AppState) => {
     setAppState((current) => {
@@ -46,7 +86,23 @@ export function App() {
     });
   };
 
-  const addTransaction = (input: TransactionInput) => {
+  const addTransaction = async (input: TransactionInput) => {
+    try {
+      const result = await postTransaction(input);
+      setAppState(result.state);
+      setAccount(result.account);
+      setAccessDenied(false);
+      return;
+    } catch (error) {
+      if (error instanceof ApiForbiddenError) {
+        setAccessDenied(true);
+        return;
+      }
+      if (!(error instanceof ApiUnavailableError)) {
+        console.error(error);
+      }
+    }
+
     updateAppState((current) => ({
       ...current,
       transactions: [createTransaction(input), ...current.transactions],
@@ -54,7 +110,23 @@ export function App() {
     }));
   };
 
-  const cancelTransaction = (source: Transaction, reason: string) => {
+  const cancelTransaction = async (source: Transaction, reason: string) => {
+    try {
+      const result = await postCancelTransaction(source, reason);
+      setAppState(result.state);
+      setAccount(result.account);
+      setAccessDenied(false);
+      return;
+    } catch (error) {
+      if (error instanceof ApiForbiddenError) {
+        setAccessDenied(true);
+        return;
+      }
+      if (!(error instanceof ApiUnavailableError)) {
+        console.error(error);
+      }
+    }
+
     updateAppState((current) => ({
       ...current,
       transactions: [createCancelTransaction(source, reason), ...current.transactions],
@@ -62,9 +134,22 @@ export function App() {
     }));
   };
 
+  if (accessDenied && route.startsWith("/parent")) {
+    return (
+      <ParentShell active={route} account={account}>
+        <div className="parent-page">
+          <section className="parent-section">
+            <h2>親アカウントが必要です</h2>
+            <p>この画面は記録を変更できるため、親アカウントだけが使えます。</p>
+          </section>
+        </div>
+      </ParentShell>
+    );
+  }
+
   if (route === "/parent/record") {
     return (
-      <ParentShell active={route}>
+      <ParentShell active={route} account={account}>
         <ParentRecord state={appState} onAddTransaction={addTransaction} />
       </ParentShell>
     );
@@ -72,7 +157,7 @@ export function App() {
 
   if (route === "/parent/history") {
     return (
-      <ParentShell active={route}>
+      <ParentShell active={route} account={account}>
         <ParentHistory state={appState} onCancelTransaction={cancelTransaction} />
       </ParentShell>
     );
@@ -80,7 +165,7 @@ export function App() {
 
   if (route === "/parent/goal") {
     return (
-      <ParentShell active={route}>
+      <ParentShell active={route} account={account}>
         <ParentGoal state={appState} />
       </ParentShell>
     );
@@ -89,7 +174,7 @@ export function App() {
   return <KidsKiosk state={appState} />;
 }
 
-function ParentShell({ active, children }: { active: Route; children: ReactNode }) {
+function ParentShell({ active, account, children }: { active: Route; account?: SessionAccount; children: ReactNode }) {
   return (
     <main className="parent-shell">
       <header className="parent-topbar">
@@ -99,6 +184,7 @@ function ParentShell({ active, children }: { active: Route; children: ReactNode 
         <div>
           <p>親モード</p>
           <h1>タグを管理</h1>
+          {account && <span className="account-label">{account.email}</span>}
         </div>
       </header>
       {children}

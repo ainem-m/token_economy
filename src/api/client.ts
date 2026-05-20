@@ -1,0 +1,66 @@
+import type { AppState, TransactionInput } from "../state/appState";
+import type { Transaction } from "../domain/types";
+
+export type AccountRole = "parent" | "child";
+
+export type SessionAccount = {
+  email: string;
+  role: AccountRole;
+  childId?: string;
+};
+
+export type ApiState = {
+  state: AppState;
+  account?: SessionAccount;
+};
+
+export class ApiUnavailableError extends Error {
+  constructor() {
+    super("API unavailable");
+  }
+}
+
+export class ApiForbiddenError extends Error {
+  constructor() {
+    super("API forbidden");
+  }
+}
+
+export async function fetchState(parent: boolean): Promise<ApiState> {
+  return request(parent ? "/api/parent-state" : "/api/kiosk-state");
+}
+
+export async function postTransaction(input: TransactionInput): Promise<ApiState> {
+  return request("/api/transactions", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export async function postCancelTransaction(source: Transaction, reason: string): Promise<ApiState> {
+  return request(`/api/transactions/${encodeURIComponent(source.id)}/cancel`, {
+    method: "POST",
+    body: JSON.stringify({ reason }),
+  });
+}
+
+async function request(path: string, init?: RequestInit): Promise<ApiState> {
+  let response: Response;
+  try {
+    response = await fetch(path, {
+      ...init,
+      headers: {
+        "content-type": "application/json",
+        ...init?.headers,
+      },
+    });
+  } catch {
+    throw new ApiUnavailableError();
+  }
+
+  if (response.status === 404) throw new ApiUnavailableError();
+  if (response.status === 401 || response.status === 403) throw new ApiForbiddenError();
+  if (!response.ok) throw new Error(`API request failed: ${response.status}`);
+
+  return response.json() as Promise<ApiState>;
+}

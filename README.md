@@ -45,6 +45,40 @@ Phase 1でやらないこと:
 - PWA/Wake Lock
 - PINの実 enforcement
 
+## VPS-Style Local Run
+
+VPS版に近い形で試す:
+
+```bash
+npm run build
+npm start
+```
+
+Default URL:
+
+- `http://localhost:8787/kids`
+- `http://localhost:8787/parent/record`
+
+The Node server binds to `127.0.0.1` by default. Override with `HOST=0.0.0.0` only when you intentionally want direct network binding; Cloudflare Tunnel can use the default localhost target.
+
+The server stores SQLite data under `data/` by default. `data/` is intentionally ignored by git.
+
+Local development auth defaults to a parent account. To simulate a child account when calling API directly, send:
+
+```text
+x-token-eco-role: child
+```
+
+Cloudflare Access mode uses:
+
+```bash
+TOKEN_ECO_AUTH_MODE=cloudflare
+CLOUDFLARE_TEAM_DOMAIN=https://<team-name>.cloudflareaccess.com
+CLOUDFLARE_POLICY_AUD=<access-application-aud>
+TOKEN_ECO_PARENT_EMAILS=parent@example.com
+TOKEN_ECO_CHILD_EMAILS=child@example.com
+```
+
 ## Non-Negotiables
 
 - 子ども画面から台帳を変更できないこと
