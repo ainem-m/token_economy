@@ -24,6 +24,7 @@
 - Data model: [docs/DATA_MODEL.md](/Users/ainem/token_eco/docs/DATA_MODEL.md)
 - UI guide: [docs/UI_GUIDE.md](/Users/ainem/token_eco/docs/UI_GUIDE.md)
 - Test checklist: [docs/TEST_CHECKLIST.md](/Users/ainem/token_eco/docs/TEST_CHECKLIST.md)
+- Deployment/auth: [docs/DEPLOYMENT_AUTH.md](/Users/ainem/token_eco/docs/DEPLOYMENT_AUTH.md)
 
 ## First Implementation Track
 

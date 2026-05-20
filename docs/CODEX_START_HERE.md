@@ -10,6 +10,7 @@ When starting a new implementation turn, read in this order:
    - UI work: [docs/UI_GUIDE.md](/Users/ainem/token_eco/docs/UI_GUIDE.md)
    - File layout: [docs/PROJECT_STRUCTURE.md](/Users/ainem/token_eco/docs/PROJECT_STRUCTURE.md)
    - Phase planning: [docs/IMPLEMENTATION_ROADMAP.md](/Users/ainem/token_eco/docs/IMPLEMENTATION_ROADMAP.md)
+   - Deployment/auth: [docs/DEPLOYMENT_AUTH.md](/Users/ainem/token_eco/docs/DEPLOYMENT_AUTH.md)
    - Verification: [docs/TEST_CHECKLIST.md](/Users/ainem/token_eco/docs/TEST_CHECKLIST.md)
 5. [PLAN.md](/Users/ainem/token_eco/PLAN.md) for the relevant phase before coding
 

@@ -117,7 +117,17 @@ Expect:
 - two children visible in kiosk mode
 - parent controls reachable with thumb on mobile
 
-## Phase 7+: Kiosk Resilience
+## Phase 7: VPS Auth And Roles
+
+- authenticated child account can open `/kids`
+- authenticated child account cannot open `/parent/*`
+- authenticated child account cannot create/cancel/update records through API
+- authenticated parent account can open `/parent/*`
+- authenticated parent account can create/cancel/update records
+- unknown authenticated email is denied
+- Cloudflare Access JWT is validated server-side
+
+## Phase 8+: Kiosk Resilience
 
 For later phases:
 

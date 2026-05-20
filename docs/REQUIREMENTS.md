@@ -69,6 +69,13 @@ weeklyGrantAmount = 2
 
 親画面はPINまたは管理モードで保護する。
 
+VPS/Cloudflare Tunnel版では、PINだけではなくアカウントロールで保護する。
+
+- child account: `/kids` 表示のみ
+- parent account: `/kids` 表示と `/parent/*` 編集
+- unknown account: deny
+- API writes are parent-only on the server
+
 ## Transactions
 
 - 過去取引は削除しない

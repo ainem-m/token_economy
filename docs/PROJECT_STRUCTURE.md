@@ -151,3 +151,13 @@ When moving to Phase 2:
 - keep `domain/` pure
 - keep `sampleData.ts` as seed/fallback data
 - do not mix persistence into visual components
+
+## VPS/Auth Changes
+
+When moving to the VPS version:
+
+- add `server/` for API, static asset serving, auth middleware, and SQLite access
+- add `src/api/` or `src/client/` for frontend API calls
+- keep `src/domain/` pure and shared where possible
+- keep Cloudflare Access JWT validation on the server
+- do not trust frontend role flags for mutation authorization

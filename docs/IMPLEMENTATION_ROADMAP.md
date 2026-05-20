@@ -131,21 +131,42 @@ Done:
 
 Goal:
 
-- 親スマホの記録が子どもタブレットに反映される
+- 親スマホの記録が子どもタブレットに反映され、VPS運用へ進める
 
 Choose one:
 
-- Supabase
 - SQLite + Node API
 
 Done:
 
 - DBスキーマがある
+- localStorageが本番データの source of truth ではなくなる
 - 親スマホから記録できる
 - 子どもタブレットへ反映される
 - 週次支給が二重付与されない
 
-## Phase 7: Kiosk Hardening
+## Phase 7: VPS Auth And Roles
+
+Goal:
+
+- Cloudflare Tunnel経由でアクセスし、子アカウントは表示、親アカウントは編集できる
+
+Build:
+
+- Cloudflare Access JWT validation
+- account role mapping
+- parent-only API mutation guards
+- parent-only `/parent/*` route access
+- child-safe `/kids` route
+
+Done:
+
+- child role cannot call write APIs
+- parent role can record/cancel/update goals
+- unknown authenticated emails are denied
+- app works behind Cloudflare Tunnel
+
+## Phase 8: Kiosk Hardening
 
 Goal:
 
