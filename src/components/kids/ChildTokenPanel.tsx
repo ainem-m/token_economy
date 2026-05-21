@@ -56,15 +56,17 @@ export function ChildTokenPanel({
       </div>
 
       <div className="goal-box">
-        <div>
+        <div className="goal-media">
           <span className="eyebrow">もくひょう</span>
+          <GoalImage goal={goal} />
           <h3>{goal.title}</h3>
+        </div>
+        <div className="goal-progress">
           <ProgressBar value={balance} max={goal.targetAmount} color={child.color} />
           <p className={achieved ? "goal-status achieved" : "goal-status"}>
             {achieved ? "たっせい！" : `あと ${remaining} こ`}
           </p>
         </div>
-        <GoalImage goal={goal} />
       </div>
     </section>
   );
