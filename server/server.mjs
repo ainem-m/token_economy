@@ -53,7 +53,12 @@ async function handleApi(request, response) {
   }
 
   if (request.method === "POST" && url.pathname === "/api/transactions") {
-    addTransaction(await readJson(request));
+    try {
+      addTransaction(await readJson(request));
+    } catch (error) {
+      if (sendKnownError(response, error)) return;
+      throw error;
+    }
     sendJson(response, 201, { state: readAppState(), account });
     return;
   }
@@ -67,10 +72,11 @@ async function handleApi(request, response) {
   const cancelMatch = url.pathname.match(/^\/api\/transactions\/([^/]+)\/cancel$/);
   if (request.method === "POST" && cancelMatch) {
     const body = await readJson(request);
-    const transaction = cancelTransaction(cancelMatch[1], String(body.reason || "取り消し"));
-    if (!transaction) {
-      sendJson(response, 404, { error: "transaction_not_found" });
-      return;
+    try {
+      cancelTransaction(cancelMatch[1], String(body.reason || "取り消し"));
+    } catch (error) {
+      if (sendKnownError(response, error)) return;
+      throw error;
     }
     sendJson(response, 201, { state: readAppState(), account });
     return;
@@ -96,6 +102,12 @@ function sendJson(response, status, payload) {
     "cache-control": "no-store",
   });
   response.end(JSON.stringify(payload));
+}
+
+function sendKnownError(response, error) {
+  if (!error?.status || !error?.code) return false;
+  sendJson(response, error.status, { error: error.code });
+  return true;
 }
 
 async function serveStatic(request, response) {

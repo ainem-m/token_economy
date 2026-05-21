@@ -74,6 +74,10 @@ export function readAppState() {
 }
 
 export function addTransaction(input) {
+  if (input.type === "spend" && input.amount < 0 && Math.abs(input.amount) > getBalance(input.childId)) {
+    throw httpError(400, "insufficient_balance");
+  }
+
   const transaction = {
     id: crypto.randomUUID(),
     childId: input.childId,
@@ -92,7 +96,10 @@ export function addTransaction(input) {
 
 export function cancelTransaction(sourceId, reason) {
   const source = db.prepare("select * from transactions where id = ?").get(sourceId);
-  if (!source) return null;
+  if (!source) throw httpError(404, "transaction_not_found");
+
+  const existingCancel = db.prepare("select count(*) as count from transactions where related_transaction_id = ?").get(sourceId).count;
+  if (existingCancel > 0) throw httpError(409, "transaction_already_cancelled");
 
   return addTransaction({
     childId: source.child_id,
@@ -102,6 +109,10 @@ export function cancelTransaction(sourceId, reason) {
     note: reason,
     relatedTransactionId: source.id,
   });
+}
+
+function getBalance(childId) {
+  return db.prepare("select coalesce(sum(amount), 0) as balance from transactions where child_id = ?").get(childId).balance;
 }
 
 export function updateSettings(input) {
@@ -144,6 +155,13 @@ function positiveInteger(value, fallback) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) return fallback;
   return Math.max(1, Math.round(parsed));
+}
+
+function httpError(status, code) {
+  const error = new Error(code);
+  error.status = status;
+  error.code = code;
+  return error;
 }
 
 function readDocument(key) {

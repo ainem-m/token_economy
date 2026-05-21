@@ -127,6 +127,38 @@ Expect:
 - Cloudflare Access allowlist denies unknown users before they reach the app
 - Cloudflare Access JWT is validated server-side
 
+## Automated Playwright E2E
+
+Run:
+
+```bash
+npm run test:e2e
+```
+
+Current automated coverage:
+
+- `/kids` remains display-only and child-safe
+- `/kids` can open the parent record route, which is PIN locked
+- wrong PIN is rejected
+- leaving parent mode locks parent screens again
+- `/parent/record`, `/parent/history`, `/parent/goal`, and `/parent/settings` require PIN
+- parent navigation switches bottom/side layout by viewport
+- parent settings update the kiosk display
+- API rejects writes without parent PIN
+- API rejects overspend
+- API prevents double cancellation
+- desktop Chromium and mobile viewport both pass
+
+## Confirmation List
+
+Need product-owner decision:
+
+- `/parent/goal` is still mostly static; decide whether editable goal save is next scope.
+- `/parent/shop` is not implemented; decide whether product price management is next scope.
+- Playwright covers local parent PIN behavior, but not real Cloudflare Access allowlist/JWT behavior.
+- Visual overlap checks are currently functional viewport checks, not screenshot/pixel assertions.
+- `TOKEN_ECO_PARENT_PIN` defaults to `2525` if the env var is missing; decide whether production should fail closed instead.
+
 ## Phase 8+: Kiosk Resilience
 
 For later phases:
