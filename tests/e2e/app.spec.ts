@@ -97,8 +97,12 @@ test("parent routes require PIN and parent layout responds to viewport width", a
   await expectClickable(page.getByRole("button", { name: "取消" }).first());
 
   await page.getByRole("button", { name: "目標" }).click();
-  await expect(page.getByRole("heading", { name: "目標を編集" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "目標" })).toBeVisible();
+  await page.getByRole("article", { name: "あおいの目標" }).getByRole("button", { name: "編集" }).click();
+  await expect(page.getByRole("dialog", { name: "あおいの目標" })).toBeVisible();
+  await expect(page.locator(".parent-nav")).toHaveAttribute("aria-hidden", "true");
   await expectClickable(page.getByRole("button", { name: "保存する" }));
+  await page.getByRole("button", { name: "目標設定を閉じる" }).click();
 
   await page.getByRole("button", { name: "設定" }).click();
   await expect(page.getByRole("heading", { name: "タグ設定" })).toBeVisible();
@@ -138,17 +142,48 @@ test("parent goal updates the kiosk goal", async ({ page }) => {
   await page.goto("/parent/goal");
   await unlockParent(page);
 
-  await expect(page.getByRole("heading", { name: "目標を編集" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "目標" })).toBeVisible();
+  await page.getByRole("article", { name: "あおいの目標" }).getByRole("button", { name: "編集" }).click();
+  await expect(page.getByRole("dialog", { name: "あおいの目標" })).toBeVisible();
+  await expect(page.getByLabel("目標名")).toBeFocused();
   await page.getByLabel("目標名").fill("じてんしゃ");
   await page.getByLabel("画像URL").fill("");
 
   await page.getByRole("textbox", { name: "必要タグ数" }).fill("6");
   await page.getByRole("button", { name: "保存する" }).click();
-  await expect(page.getByText("保存しました")).toBeVisible();
+  await expect(page.getByText("あおいの目標を保存しました")).toBeVisible();
 
   await page.getByRole("button", { name: "子ども画面へ" }).click();
   await expect(page.getByRole("heading", { name: "じてんしゃ" })).toBeVisible();
   await expect(page.getByText("あと 3 こ")).toBeVisible();
+});
+
+test("parent goal modal confirms before discarding unsaved edits and can mark achieved", async ({ page }) => {
+  await page.goto("/parent/goal");
+  await unlockParent(page);
+
+  const aoiEdit = page.getByRole("article", { name: "あおいの目標" }).getByRole("button", { name: "編集" });
+  await aoiEdit.click();
+  await expect(page.getByRole("button", { name: "ブロック" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: "必要タグ数を減らす" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "必要タグ数を増やす" })).toBeVisible();
+  await page.getByLabel("目標名").fill("未保存の目標");
+  await page.getByRole("button", { name: "目標設定を閉じる" }).click();
+  await expect(page.getByText("保存していない変更があります")).toBeVisible();
+  await expect(page.getByRole("button", { name: "編集を続ける" })).toBeFocused();
+  await expect(page.getByRole("button", { name: "保存する" })).toHaveCount(0);
+  await page.getByRole("button", { name: "編集を続ける" }).click();
+  await expect(page.getByRole("dialog", { name: "あおいの目標" })).toBeVisible();
+  await page.getByRole("button", { name: "キャンセル" }).click();
+  await page.getByRole("button", { name: "破棄する" }).click();
+  await expect(page.getByRole("dialog", { name: "あおいの目標" })).toHaveCount(0);
+  await expect(aoiEdit).toBeFocused();
+
+  await page.getByRole("article", { name: "はるの目標" }).getByRole("button", { name: "編集" }).click();
+  await page.getByLabel("達成済みにする").check();
+  await page.getByRole("button", { name: "保存する" }).click();
+  await expect(page.getByText("はるの目標を保存しました")).toBeVisible();
+  await expect(page.getByRole("article", { name: "はるの目標" }).getByText("達成済み")).toBeVisible();
 });
 
 test("parent goal image URL is used on the kiosk", async ({ page }) => {
@@ -157,10 +192,11 @@ test("parent goal image URL is used on the kiosk", async ({ page }) => {
   await page.goto("/parent/goal");
   await unlockParent(page);
 
+  await page.getByRole("article", { name: "あおいの目標" }).getByRole("button", { name: "編集" }).click();
   await page.getByLabel("目標名").fill("しゃしんつき");
   await page.getByLabel("画像URL").fill(imageUrl);
   await page.getByRole("button", { name: "保存する" }).click();
-  await expect(page.getByText("保存しました")).toBeVisible();
+  await expect(page.getByText("あおいの目標を保存しました")).toBeVisible();
 
   await page.getByRole("button", { name: "子ども画面へ" }).click();
   const goalImage = page.getByRole("img", { name: "しゃしんつき" });
@@ -226,6 +262,17 @@ test("API requires PIN for goal updates", async ({ request }) => {
   const goals = body.state.goals.map((goal: { id: string; title: string }) =>
     goal.id === "goal-aoi" ? { ...goal, title: "API目標" } : goal,
   );
+
+  const falseAchieved = await request.post("/api/goals", {
+    headers: parentPinHeader,
+    data: {
+      goals: body.state.goals.map((goal: { id: string; status: string; targetAmount: number }) =>
+        goal.id === "goal-aoi" ? { ...goal, status: "achieved", targetAmount: 8 } : goal,
+      ),
+    },
+  });
+  expect(falseAchieved.status()).toBe(400);
+  await expect(falseAchieved.json()).resolves.toEqual({ error: "goal_not_achieved" });
 
   const withPin = await request.post("/api/goals", {
     headers: parentPinHeader,

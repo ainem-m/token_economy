@@ -26,6 +26,15 @@ export function isGoalAchieved(balance: number, goal: Goal): boolean {
   return getDisplayBalance(balance) >= goal.targetAmount;
 }
 
+export function isGoalComplete(balance: number, goal: Goal): boolean {
+  return goal.status === "achieved" || isGoalAchieved(balance, goal);
+}
+
+export function getVisibleGoal(goals: Goal[], childId: string): Goal | undefined {
+  return goals.find((goal) => goal.childId === childId && goal.status === "active")
+    ?? goals.find((goal) => goal.childId === childId && goal.status === "achieved");
+}
+
 export function isTransactionCancelled(transactions: Transaction[], transactionId: string): boolean {
   return transactions.some((transaction) => transaction.relatedTransactionId === transactionId);
 }

@@ -81,7 +81,12 @@ async function handleApi(request, response) {
   }
 
   if (request.method === "POST" && url.pathname === "/api/goals") {
-    updateGoals(await readJson(request));
+    try {
+      updateGoals(await readJson(request));
+    } catch (error) {
+      if (sendKnownError(response, error)) return;
+      throw error;
+    }
     sendJson(response, 200, { state: readAppState(), account });
     return;
   }

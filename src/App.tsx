@@ -46,6 +46,7 @@ export function App() {
   const [accessDenied, setAccessDenied] = useState(false);
   const [parentPin, setParentPin] = useState("");
   const [pinError, setPinError] = useState(false);
+  const [parentChromeInert, setParentChromeInert] = useState(false);
 
   useEffect(() => {
     const syncRoute = () => setRoute(getRoute());
@@ -55,6 +56,7 @@ export function App() {
 
   useEffect(() => {
     let active = true;
+    setParentChromeInert(false);
 
     const loadState = async () => {
       if (!route.startsWith("/parent") && parentPin) {
@@ -235,7 +237,7 @@ export function App() {
   };
 
   const renderParent = (children: ReactNode) => (
-    <ParentShell active={route} account={account} onLeaveParentMode={leaveParentMode}>
+    <ParentShell active={route} account={account} chromeInert={parentChromeInert} onLeaveParentMode={leaveParentMode}>
       {children}
     </ParentShell>
   );
@@ -253,7 +255,7 @@ export function App() {
   }
 
   if (route === "/parent/goal") {
-    return renderParent(<ParentGoal state={appState} onSaveGoals={saveGoals} />);
+    return renderParent(<ParentGoal state={appState} onSaveGoals={saveGoals} onModalOpenChange={setParentChromeInert} />);
   }
 
   if (route === "/parent/settings") {
@@ -300,17 +302,19 @@ function ParentLock({ invalid, onUnlock }: { invalid: boolean; onUnlock: (pin: s
 function ParentShell({
   active,
   account,
+  chromeInert,
   children,
   onLeaveParentMode,
 }: {
   active: Route;
   account?: SessionAccount;
+  chromeInert: boolean;
   children: ReactNode;
   onLeaveParentMode: () => void;
 }) {
   return (
     <main className="parent-shell">
-      <header className="parent-topbar">
+      <header className="parent-topbar" aria-hidden={chromeInert || undefined} inert={chromeInert || undefined}>
         <button className="icon-button" onClick={onLeaveParentMode} aria-label="子ども画面へ">
           <Home size={22} />
         </button>
@@ -321,7 +325,7 @@ function ParentShell({
         </div>
       </header>
       {children}
-      <nav className="parent-nav" aria-label="親画面">
+      <nav className="parent-nav" aria-label="親画面" aria-hidden={chromeInert || undefined} inert={chromeInert || undefined}>
         <button className={active === "/parent/record" ? "active" : ""} onClick={() => navigate("/parent/record")}>
           <ClipboardEdit size={20} />
           <span>記録</span>

@@ -226,13 +226,19 @@ function normalizeGoals(input, fallback, children) {
     const next = input.find((candidate) => candidate?.id === goal.id);
     if (!next || !activeChildIds.has(goal.childId)) return goal;
     const imageUrl = String(next.imageUrl || "").trim();
+    const targetAmount = positiveInteger(next.targetAmount, goal.targetAmount);
+    const status = normalizeGoalStatus(next.status, goal.status);
+    if (status === "achieved" && getBalance(goal.childId) < targetAmount) {
+      throw httpError(400, "goal_not_achieved");
+    }
 
     return {
       ...goal,
       title: String(next.title || goal.title).trim().slice(0, 32) || goal.title,
-      targetAmount: positiveInteger(next.targetAmount, goal.targetAmount),
+      targetAmount,
       imagePreset: normalizePreset(next.imagePreset, goal.imagePreset),
       imageUrl: imageUrl ? imageUrl.slice(0, 500) : undefined,
+      status,
     };
   });
 }
@@ -240,6 +246,11 @@ function normalizeGoals(input, fallback, children) {
 function normalizePreset(value, fallback) {
   const presets = new Set(["choco", "ice", "gacha", "blocks", "book", "plush", "coin"]);
   return presets.has(value) ? value : fallback;
+}
+
+function normalizeGoalStatus(value, fallback) {
+  const statuses = new Set(["active", "achieved", "archived"]);
+  return statuses.has(value) ? value : fallback;
 }
 
 function positiveInteger(value, fallback) {

@@ -857,6 +857,198 @@ input {
   background: #edf6ff;
 }
 
+.goal-card-list {
+  display: grid;
+  gap: 10px;
+}
+
+.goal-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #d7e3ef;
+  border-radius: 14px;
+  background: #fbfdff;
+}
+
+.goal-card-icon {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border: 1px solid #d6e2ee;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.goal-card-icon .item-icon.large {
+  width: 48px;
+  height: 48px;
+  font-size: 2.4rem;
+}
+
+.goal-card-text {
+  display: grid;
+  min-width: 0;
+}
+
+.goal-card-text span {
+  color: #66788a;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.goal-card-text strong {
+  color: #172544;
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 1rem;
+  font-weight: 900;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-height: 1.18;
+}
+
+.goal-card-status {
+  margin: 2px 0 0;
+  color: #1d6d2f;
+  font-size: 0.84rem;
+  font-weight: 900;
+}
+
+.goal-card-status.achieved {
+  color: #7c43c8;
+}
+
+.edit-goal-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 40px;
+  padding: 0 11px;
+  border: 1px solid #cbd9e7;
+  border-radius: 11px;
+  background: #fff;
+  color: #1d4264;
+  font-weight: 900;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  align-items: end;
+  padding: 12px;
+  background: rgba(10, 24, 40, 0.38);
+}
+
+.goal-modal {
+  display: grid;
+  gap: 12px;
+  width: min(100%, 430px);
+  max-height: min(92vh, 720px);
+  overflow: auto;
+  margin: 0 auto;
+  padding: 14px;
+  border: 1px solid #d7e3ef;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 18px 50px rgba(13, 31, 48, 0.28);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.modal-header p,
+.modal-header h2 {
+  margin: 0;
+}
+
+.modal-header p {
+  color: #66788a;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.modal-header h2 {
+  color: #172544;
+  font-size: 1.2rem;
+  line-height: 1.15;
+}
+
+.achieved-toggle {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #d9c7ef;
+  border-radius: 12px;
+  background: #f8f1ff;
+  color: #6130a0;
+}
+
+.achieved-toggle.disabled {
+  border-color: #d7e3ef;
+  background: #f6f8fa;
+  color: #66788a;
+}
+
+.achieved-toggle input {
+  width: 20px;
+  min-height: 20px;
+  accent-color: #7c43c8;
+}
+
+.achieved-toggle span {
+  overflow-wrap: anywhere;
+}
+
+.modal-confirm {
+  display: grid;
+  padding: 10px;
+  border: 1px solid #f0c3a1;
+  border-radius: 12px;
+  background: #fff7ef;
+  color: #743415;
+}
+
+.modal-actions {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 8px;
+  padding-top: 8px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), #fff 30%);
+}
+
+.modal-actions > button:first-child {
+  min-height: 54px;
+  border: 1px solid #cbd9e7;
+  border-radius: 14px;
+  background: #fff;
+  color: #40566e;
+  font-weight: 900;
+}
+
+.danger-action {
+  min-height: 54px;
+  border: 1px solid #e08b8b;
+  border-radius: 14px;
+  background: #fff0f0;
+  color: #b91f1f;
+  font-weight: 900;
+}
+
 @media (max-width: 860px) {
   .children-grid {
     grid-template-columns: 1fr;
@@ -928,8 +1120,13 @@ input {
 
   .parent-page > .primary-action,
   .parent-page > .record-message,
-  .pin-lock {
+  .pin-lock,
+  .goal-overview-section {
     grid-column: 1 / -1;
+  }
+
+  .goal-card-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .parent-section {
@@ -1010,6 +1207,10 @@ input {
     width: 58px;
     height: 58px;
     font-size: 3rem;
+  }
+
+  .modal-backdrop {
+    align-items: center;
   }
 
   .quick-grid,

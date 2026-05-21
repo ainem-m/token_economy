@@ -4,8 +4,8 @@ import { ProgressBar } from "../common/ProgressBar";
 import {
   getBalance,
   getGoalRemaining,
+  isGoalComplete,
   getSavedTokens,
-  isGoalAchieved,
 } from "../../domain/calculations";
 import type { Child, Goal, Settings, Transaction } from "../../domain/types";
 
@@ -24,7 +24,7 @@ export function ChildTokenPanel({
   const displayBalance = Math.max(balance, 0);
   const savedTokens = getSavedTokens(balance, settings);
   const remaining = getGoalRemaining(balance, goal);
-  const achieved = isGoalAchieved(balance, goal);
+  const achieved = isGoalComplete(balance, goal);
 
   return (
     <section className={`child-panel ${child.color}`} aria-label={`${child.name}のタグ`}>
