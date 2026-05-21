@@ -9,8 +9,13 @@ test.beforeEach(async ({ request }) => {
 });
 
 async function unlockParent(page: Page) {
-  await page.getByLabel("親モードPIN").fill(parentPin);
-  await page.getByRole("button", { name: "開く" }).click();
+  await enterParentPin(page, parentPin);
+}
+
+async function enterParentPin(page: Page, pin: string) {
+  for (const digit of pin) {
+    await page.getByRole("button", { name: `PIN ${digit}` }).click();
+  }
 }
 
 async function expectClickable(locator: Locator) {
@@ -55,8 +60,7 @@ test("kids kiosk links to PIN-locked parent record flow", async ({ page }) => {
   await page.getByRole("button", { name: "親の記録画面へ" }).click();
   await expect(page.getByRole("heading", { name: "PINを入力" })).toBeVisible();
 
-  await page.getByLabel("親モードPIN").fill("0000");
-  await page.getByRole("button", { name: "開く" }).click();
+  await enterParentPin(page, "0000");
   await expect(page.getByText("PINが違います。")).toBeVisible();
 
   await unlockParent(page);

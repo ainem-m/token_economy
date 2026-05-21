@@ -74,6 +74,36 @@ CLOUDFLARE_POLICY_AUD=<access-application-aud>
 TOKEN_ECO_PARENT_PIN=2525
 ```
 
+## VPS Update
+
+VPS上でこのリポジトリをcloneしてsystemd等で `npm start` を動かしている場合、更新は次のスクリプトで行う:
+
+```bash
+./scripts/update-vps.sh
+```
+
+The script does:
+
+- refuses to run when the git working tree is dirty
+- backs up `data/token-eco.sqlite` to `data/backups/`
+- runs `git pull --ff-only`
+- runs `npm ci`
+- runs `npm run build`
+- restarts `token-eco.service` when it exists
+- checks `http://127.0.0.1:8787/kids`
+
+If the systemd service name is different:
+
+```bash
+TOKEN_ECO_SERVICE=my-service ./scripts/update-vps.sh
+```
+
+If the restart command is custom:
+
+```bash
+TOKEN_ECO_RESTART_CMD="pm2 restart token-eco" ./scripts/update-vps.sh
+```
+
 ## Tests
 
 Run the Playwright E2E path:

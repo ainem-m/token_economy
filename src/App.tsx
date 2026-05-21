@@ -1,5 +1,5 @@
-import { ClipboardEdit, History, Home, LockKeyhole, Settings, Target } from "lucide-react";
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { ClipboardEdit, Delete, History, Home, LockKeyhole, Settings, Target, X } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   ApiForbiddenError,
   ApiUnavailableError,
@@ -267,34 +267,55 @@ export function App() {
 
 function ParentLock({ invalid, onUnlock }: { invalid: boolean; onUnlock: (pin: string) => void }) {
   const [pin, setPin] = useState("");
+  const digits = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
 
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    if (pin.trim()) onUnlock(pin.trim());
+  const appendDigit = (digit: string) => {
+    const nextPin = `${pin}${digit}`.slice(0, 4);
+    setPin(nextPin);
+    if (nextPin.length === 4) {
+      onUnlock(nextPin);
+    }
   };
 
   return (
     <div className="parent-page">
-      <form className="parent-section pin-lock" onSubmit={submit}>
+      <section className="parent-section pin-lock" aria-labelledby="parent-lock-title">
         <div className="lock-mark" aria-hidden="true">
           <LockKeyhole size={28} />
         </div>
         <div className="section-heading">
           <p>親モード</p>
-          <h2>PINを入力</h2>
+          <h2 id="parent-lock-title">PINを入力</h2>
         </div>
-        <input
-          autoFocus
-          inputMode="numeric"
-          pattern="[0-9]*"
-          type="password"
-          value={pin}
-          onChange={(event) => setPin(event.target.value)}
+        <div
+          className="pin-display"
+          role="textbox"
           aria-label="親モードPIN"
-        />
+          aria-readonly="true"
+          aria-valuetext={`${pin.length}桁入力済み`}
+        >
+          {Array.from({ length: 4 }, (_, index) => (
+            <span key={index} className={index < pin.length ? "filled" : ""} aria-hidden="true" />
+          ))}
+        </div>
         {invalid && <p className="record-message error">PINが違います。</p>}
-        <button className="primary-action" type="submit">開く</button>
-      </form>
+        <div className="pin-keypad" aria-label="PINテンキー">
+          {digits.slice(0, 9).map((digit) => (
+            <button key={digit} type="button" onClick={() => appendDigit(digit)} aria-label={`PIN ${digit}`}>
+              {digit}
+            </button>
+          ))}
+          <button type="button" className="pin-tool" onClick={() => setPin("")} aria-label="PINを全部消す">
+            <X size={22} />
+          </button>
+          <button type="button" onClick={() => appendDigit("0")} aria-label="PIN 0">
+            0
+          </button>
+          <button type="button" className="pin-tool" onClick={() => setPin((current) => current.slice(0, -1))} aria-label="PINを1桁消す">
+            <Delete size={22} />
+          </button>
+        </div>
+      </section>
     </div>
   );
 }

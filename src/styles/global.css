@@ -629,11 +629,57 @@ input {
   color: #1e78d3;
 }
 
-.pin-lock input {
-  min-height: 58px;
-  text-align: center;
-  font-size: 1.7rem;
-  letter-spacing: 0.2em;
+.pin-display {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  max-width: 260px;
+  width: 100%;
+  min-height: 52px;
+  margin: 0 auto;
+  place-items: center;
+}
+
+.pin-display span {
+  display: block;
+  width: 18px;
+  aspect-ratio: 1;
+  border: 2px solid #9fb7cf;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.pin-display span.filled {
+  border-color: #1e78d3;
+  background: #1e78d3;
+}
+
+.pin-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pin-keypad button {
+  display: grid;
+  place-items: center;
+  min-height: 64px;
+  border: 1px solid #cad8e6;
+  border-radius: 16px;
+  background: #f7fbff;
+  color: #162b3f;
+  font-size: 1.55rem;
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgba(33, 66, 96, 0.08);
+}
+
+.pin-keypad button:active {
+  transform: translateY(1px);
+}
+
+.pin-keypad .pin-tool {
+  color: #5c7185;
+  font-size: 1rem;
 }
 
 .parent-nav {
