@@ -79,6 +79,11 @@ test("parent routes require PIN and parent layout responds to viewport width", a
   } else {
     expect(box!.height).toBeGreaterThan(box!.width);
   }
+
+  await page.getByRole("button", { name: "履歴" }).click();
+  await expect(page.getByRole("heading", { name: "履歴" })).toBeVisible();
+  await page.getByRole("button", { name: "記録" }).click();
+  await expect(page.getByRole("heading", { name: "記録する" })).toBeVisible();
 });
 
 test("parent settings update the kiosk display", async ({ page }) => {

@@ -945,7 +945,7 @@ input {
   }
 
   .parent-nav {
-    top: 18px;
+    top: 112px;
     right: auto;
     bottom: auto;
     left: calc(50% - min(50vw, 480px) + 18px);
