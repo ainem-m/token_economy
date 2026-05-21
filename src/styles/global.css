@@ -893,6 +893,73 @@ input {
   }
 }
 
+@media (min-width: 900px) {
+  .parent-shell {
+    width: min(100%, 960px);
+    padding: 18px 18px 24px 104px;
+  }
+
+  .parent-topbar {
+    margin: -18px -18px 16px -104px;
+    padding: 14px 18px 14px 104px;
+  }
+
+  .parent-page {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 16px;
+  }
+
+  .parent-page > .primary-action,
+  .parent-page > .record-message,
+  .pin-lock {
+    grid-column: 1 / -1;
+  }
+
+  .parent-section {
+    min-width: 0;
+  }
+
+  .quick-grid,
+  .image-preset-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .form-grid.single {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .child-settings-row {
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .history-list,
+  .child-settings-list,
+  .cancel-panel {
+    grid-column: 1 / -1;
+  }
+
+  .parent-nav {
+    top: 18px;
+    right: auto;
+    bottom: auto;
+    left: calc(50% - min(50vw, 480px) + 18px);
+    grid-template-columns: 1fr;
+    width: 68px;
+    transform: none;
+    border-radius: 18px;
+    padding: 8px 0;
+  }
+
+  .parent-nav button {
+    min-height: 64px;
+  }
+}
+
 @media (min-width: 861px) and (max-height: 820px) {
   .kids-kiosk {
     padding: 18px;
