@@ -27,7 +27,6 @@ import type { Child, Settings as AppSettings, Transaction } from "./domain/types
 type Route = "/kids" | "/parent/record" | "/parent/history" | "/parent/goal" | "/parent/settings";
 
 const routes: Route[] = ["/kids", "/parent/record", "/parent/history", "/parent/goal", "/parent/settings"];
-const PARENT_PIN_STORAGE_KEY = "token-eco:parent-pin";
 
 function getRoute(): Route {
   const path = window.location.pathname;
@@ -44,7 +43,7 @@ export function App() {
   const [appState, setAppState] = useState<AppState>(() => readStoredState());
   const [account, setAccount] = useState<SessionAccount | undefined>();
   const [accessDenied, setAccessDenied] = useState(false);
-  const [parentPin, setParentPin] = useState(() => window.sessionStorage.getItem(PARENT_PIN_STORAGE_KEY) || "");
+  const [parentPin, setParentPin] = useState("");
   const [pinError, setPinError] = useState(false);
 
   useEffect(() => {
@@ -57,6 +56,11 @@ export function App() {
     let active = true;
 
     const loadState = async () => {
+      if (!route.startsWith("/parent") && parentPin) {
+        setParentPin("");
+        setPinError(false);
+      }
+
       if (route.startsWith("/parent") && !parentPin) {
         setAccessDenied(true);
         return;
@@ -72,7 +76,6 @@ export function App() {
       } catch (error) {
         if (!active) return;
         if (error instanceof ApiForbiddenError) {
-          window.sessionStorage.removeItem(PARENT_PIN_STORAGE_KEY);
           setParentPin("");
           setAccessDenied(true);
           setPinError(Boolean(parentPin));
@@ -189,15 +192,21 @@ export function App() {
   };
 
   const unlockParent = (pin: string) => {
-    window.sessionStorage.setItem(PARENT_PIN_STORAGE_KEY, pin);
     setParentPin(pin);
     setAccessDenied(false);
     setPinError(false);
   };
 
+  const leaveParentMode = () => {
+    setParentPin("");
+    setPinError(false);
+    setAccessDenied(false);
+    navigate("/kids");
+  };
+
   if (accessDenied && route.startsWith("/parent")) {
     return (
-      <ParentShell active={route} account={account}>
+      <ParentShell active={route} account={account} onLeaveParentMode={leaveParentMode}>
         <ParentLock onUnlock={unlockParent} invalid={pinError} />
       </ParentShell>
     );
@@ -205,7 +214,7 @@ export function App() {
 
   if (route === "/parent/record") {
     return (
-      <ParentShell active={route} account={account}>
+      <ParentShell active={route} account={account} onLeaveParentMode={leaveParentMode}>
         <ParentRecord state={appState} onAddTransaction={addTransaction} />
       </ParentShell>
     );
@@ -213,7 +222,7 @@ export function App() {
 
   if (route === "/parent/history") {
     return (
-      <ParentShell active={route} account={account}>
+      <ParentShell active={route} account={account} onLeaveParentMode={leaveParentMode}>
         <ParentHistory state={appState} onCancelTransaction={cancelTransaction} />
       </ParentShell>
     );
@@ -221,7 +230,7 @@ export function App() {
 
   if (route === "/parent/goal") {
     return (
-      <ParentShell active={route} account={account}>
+      <ParentShell active={route} account={account} onLeaveParentMode={leaveParentMode}>
         <ParentGoal state={appState} />
       </ParentShell>
     );
@@ -229,7 +238,7 @@ export function App() {
 
   if (route === "/parent/settings") {
     return (
-      <ParentShell active={route} account={account}>
+      <ParentShell active={route} account={account} onLeaveParentMode={leaveParentMode}>
         <ParentSettings state={appState} onSaveSettings={saveSettings} />
       </ParentShell>
     );
@@ -272,11 +281,21 @@ function ParentLock({ invalid, onUnlock }: { invalid: boolean; onUnlock: (pin: s
   );
 }
 
-function ParentShell({ active, account, children }: { active: Route; account?: SessionAccount; children: ReactNode }) {
+function ParentShell({
+  active,
+  account,
+  children,
+  onLeaveParentMode,
+}: {
+  active: Route;
+  account?: SessionAccount;
+  children: ReactNode;
+  onLeaveParentMode: () => void;
+}) {
   return (
     <main className="parent-shell">
       <header className="parent-topbar">
-        <button className="icon-button" onClick={() => navigate("/kids")} aria-label="子ども画面へ">
+        <button className="icon-button" onClick={onLeaveParentMode} aria-label="子ども画面へ">
           <Home size={22} />
         </button>
         <div>

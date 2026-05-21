@@ -53,6 +53,7 @@ Rules:
 - `/kids` is display-only and does not require the app PIN.
 - `/parent/*` requires the app PIN.
 - Ledger writes require the app PIN on the server.
+- The app does not persist the PIN; leaving parent mode locks parent screens again.
 - Cloudflare logout/account switching is not part of the parent/child separation.
 
 ## Route Policy
