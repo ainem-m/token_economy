@@ -896,20 +896,34 @@ input {
 
 @media (min-width: 900px) {
   .parent-shell {
-    --parent-desktop-nav-top: 112px;
+    --parent-desktop-nav-top: 100px;
     width: min(100%, 960px);
-    padding: 18px 18px 24px 104px;
+    padding: 14px 16px 20px 98px;
   }
 
   .parent-topbar {
-    margin: -18px -18px 16px -104px;
-    padding: 14px 18px 14px 104px;
+    gap: 10px;
+    margin: -14px -16px 12px -98px;
+    padding: 12px 16px 12px 98px;
+  }
+
+  .parent-topbar h1 {
+    font-size: 1.24rem;
+  }
+
+  .parent-topbar p {
+    font-size: 0.82rem;
+  }
+
+  .icon-button {
+    width: 40px;
+    height: 40px;
   }
 
   .parent-page {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
-    gap: 16px;
+    gap: 12px;
   }
 
   .parent-page > .primary-action,
@@ -919,7 +933,83 @@ input {
   }
 
   .parent-section {
+    gap: 10px;
     min-width: 0;
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .section-heading h2 {
+    font-size: 1.12rem;
+  }
+
+  .section-heading p {
+    font-size: 0.8rem;
+  }
+
+  label {
+    gap: 4px;
+    font-size: 0.82rem;
+  }
+
+  input {
+    min-height: 40px;
+    border-radius: 9px;
+    padding: 0 10px;
+  }
+
+  .segmented-control,
+  .action-choice,
+  .quick-grid,
+  .form-grid,
+  .image-preset-grid {
+    gap: 8px;
+  }
+
+  .segmented-control button {
+    min-height: 40px;
+  }
+
+  .action-choice button {
+    min-height: 44px;
+  }
+
+  .quick-card {
+    min-height: 90px;
+    padding: 10px;
+  }
+
+  .quick-card .item-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 26px;
+  }
+
+  .quick-card b {
+    font-size: 1.06rem;
+  }
+
+  .static-stepper {
+    grid-template-columns: 34px minmax(0, 1fr) 34px;
+  }
+
+  .static-stepper.with-suffix {
+    grid-template-columns: 34px minmax(0, 1fr) 34px auto;
+  }
+
+  .primary-action {
+    min-height: 46px;
+    border-radius: 12px;
+  }
+
+  .image-preset-grid button {
+    min-height: 68px;
+  }
+
+  .image-preset-grid .item-icon.large {
+    width: 58px;
+    height: 58px;
+    font-size: 3rem;
   }
 
   .quick-grid,
@@ -937,6 +1027,14 @@ input {
 
   .child-settings-row {
     grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+    padding: 8px;
+    border-radius: 12px;
+  }
+
+  .settings-avatar {
+    width: 42px;
+    height: 42px;
+    font-size: 1.45rem;
   }
 
   .history-list,
