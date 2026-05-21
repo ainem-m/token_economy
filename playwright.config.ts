@@ -12,7 +12,7 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   webServer: {
-    command: "npm run build && rm -f data/playwright.sqlite data/playwright.sqlite-shm data/playwright.sqlite-wal && TOKEN_ECO_DB=data/playwright.sqlite TOKEN_ECO_PARENT_PIN=2468 PORT=8795 npm start",
+    command: "npm run build && rm -f data/playwright.sqlite data/playwright.sqlite-shm data/playwright.sqlite-wal && TOKEN_ECO_DB=data/playwright.sqlite TOKEN_ECO_PARENT_PIN=2468 TOKEN_ECO_TEST_RESET=1 PORT=8795 npm start",
     url: "http://127.0.0.1:8795/kids",
     reuseExistingServer: false,
     timeout: 120_000,

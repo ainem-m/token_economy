@@ -638,6 +638,7 @@ input {
 
 .parent-nav {
   position: fixed;
+  z-index: 3;
   right: 50%;
   bottom: 12px;
   display: grid;

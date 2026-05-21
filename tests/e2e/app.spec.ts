@@ -2,6 +2,11 @@ import { expect, test } from "@playwright/test";
 
 const parentPinHeader = { "x-token-eco-parent-pin": "2468" };
 
+test.beforeEach(async ({ request }) => {
+  const reset = await request.post("/api/test/reset", { headers: parentPinHeader });
+  expect(reset.ok()).toBeTruthy();
+});
+
 test("key screens match visual baselines", async ({ page }) => {
   await page.goto("/kids");
   await expect(page).toHaveScreenshot("kids-kiosk.png", { fullPage: true, maxDiffPixelRatio: 0.02 });
@@ -89,6 +94,19 @@ test("parent settings update the kiosk display", async ({ page }) => {
   await expect(page.getByText("6さい")).toBeVisible();
 });
 
+test("parent settings weekly grant changes record quick action", async ({ page }) => {
+  await page.goto("/parent/settings");
+  await page.getByLabel("親モードPIN").fill("2468");
+  await page.getByRole("button", { name: "開く" }).click();
+
+  await page.getByRole("textbox", { name: "土ようび支給の数" }).fill("4");
+  await page.getByRole("button", { name: "保存する" }).click();
+  await expect(page.getByText("保存しました")).toBeVisible();
+
+  await page.getByRole("button", { name: "記録" }).click();
+  await expect(page.getByRole("button", { name: /土ようび.*\+4こ/s })).toBeVisible();
+});
+
 test("parent goal updates the kiosk goal", async ({ page }) => {
   await page.goto("/parent/goal");
   await page.getByLabel("親モードPIN").fill("2468");
@@ -98,14 +116,81 @@ test("parent goal updates the kiosk goal", async ({ page }) => {
   await page.getByLabel("目標名").fill("じてんしゃ");
   await page.getByLabel("画像URL").fill("");
 
-  const targetInput = page.locator(".static-stepper input").first();
-  await targetInput.fill("6");
+  await page.getByRole("textbox", { name: "必要タグ数" }).fill("6");
   await page.getByRole("button", { name: "保存する" }).click();
   await expect(page.getByText("保存しました")).toBeVisible();
 
   await page.getByRole("button", { name: "子ども画面へ" }).click();
   await expect(page.getByRole("heading", { name: "じてんしゃ" })).toBeVisible();
   await expect(page.getByText("あと 3 こ")).toBeVisible();
+});
+
+test("parent goal image URL is used on the kiosk", async ({ page }) => {
+  const imageUrl = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 120'%3E%3Crect width='160' height='120' fill='%23f8d35a'/%3E%3Ccircle cx='80' cy='60' r='34' fill='%23277ec2'/%3E%3C/svg%3E";
+
+  await page.goto("/parent/goal");
+  await page.getByLabel("親モードPIN").fill("2468");
+  await page.getByRole("button", { name: "開く" }).click();
+
+  await page.getByLabel("目標名").fill("しゃしんつき");
+  await page.getByLabel("画像URL").fill(imageUrl);
+  await page.getByRole("button", { name: "保存する" }).click();
+  await expect(page.getByText("保存しました")).toBeVisible();
+
+  await page.getByRole("button", { name: "子ども画面へ" }).click();
+  const goalImage = page.getByRole("img", { name: "しゃしんつき" });
+  await expect(goalImage).toBeVisible();
+  await expect(goalImage).toHaveAttribute("src", imageUrl);
+});
+
+test("parent record grant and spend update kiosk balances", async ({ page }) => {
+  await page.goto("/parent/record");
+  await page.getByLabel("親モードPIN").fill("2468");
+  await page.getByRole("button", { name: "開く" }).click();
+
+  await expect(page.getByText(/いま \d+こ/)).toBeVisible();
+  await page.getByRole("button", { name: "記録する" }).click();
+  await expect(page.getByText("記録しました")).toBeVisible();
+
+  await page.getByRole("button", { name: "チョコ 1こ" }).click();
+  await page.getByRole("button", { name: "記録する" }).click();
+  await expect(page.getByText("記録しました")).toBeVisible();
+
+  await page.getByRole("button", { name: "子ども画面へ" }).click();
+  await expect(page.locator(".child-panel").first().locator(".total-token strong")).toHaveText("4");
+  await expect(page.locator(".child-panel").first().getByText("ちょきん")).toBeVisible();
+});
+
+test("parent record blocks overspend through the UI", async ({ page }) => {
+  await page.goto("/parent/record");
+  await page.getByLabel("親モードPIN").fill("2468");
+  await page.getByRole("button", { name: "開く" }).click();
+
+  await page.getByRole("button", { name: "つかった" }).click();
+  for (let i = 0; i < 6; i += 1) {
+    await page.locator(".static-stepper button").last().click();
+  }
+  await page.getByRole("button", { name: "記録する" }).click();
+  await expect(page.getByText("残高が足りないため記録できません")).toBeVisible();
+});
+
+test("history cancel flow adds correction and disables double cancel in UI", async ({ page }) => {
+  await page.goto("/parent/record");
+  await page.getByLabel("親モードPIN").fill("2468");
+  await page.getByRole("button", { name: "開く" }).click();
+
+  await page.getByRole("button", { name: "記録する" }).click();
+  await expect(page.getByText("記録しました")).toBeVisible();
+
+  await page.getByRole("button", { name: "履歴" }).click();
+  const firstRow = page.locator(".history-row").first();
+  await expect(firstRow.getByText("土ようび")).toBeVisible();
+  await firstRow.getByRole("button", { name: "取消" }).click();
+  await page.getByLabel("メモ").fill("E2E");
+  await page.getByRole("button", { name: "取り消す" }).click();
+
+  await expect(page.locator(".history-row").first().getByText("取り消し: 土ようび")).toBeVisible();
+  await expect(page.locator(".history-row").nth(1).getByRole("button", { name: "取消済み" })).toBeDisabled();
 });
 
 test("API requires PIN for goal updates", async ({ request }) => {

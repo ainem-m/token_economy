@@ -13,7 +13,7 @@ export function ParentRecord({
   onAddTransaction,
 }: {
   state: AppState;
-  onAddTransaction: (input: TransactionInput) => void;
+  onAddTransaction: (input: TransactionInput) => void | Promise<void>;
 }) {
   const activeChildren = useMemo(
     () => [...state.children].filter((child) => child.isActive).sort((a, b) => a.displayOrder - b.displayOrder),
@@ -47,7 +47,7 @@ export function ParentRecord({
     setMessage("");
   };
 
-  const record = () => {
+  const record = async () => {
     const normalizedAmount = Math.max(1, amount);
     const signedAmount = mode === "grant" ? normalizedAmount : -normalizedAmount;
 
@@ -56,7 +56,7 @@ export function ParentRecord({
       return;
     }
 
-    onAddTransaction({
+    await onAddTransaction({
       childId,
       type: mode as TransactionType,
       amount: signedAmount,

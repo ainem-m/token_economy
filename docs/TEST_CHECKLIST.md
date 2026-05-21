@@ -144,11 +144,17 @@ Current automated coverage:
 - `/parent/record`, `/parent/history`, `/parent/goal`, and `/parent/settings` require PIN
 - parent navigation switches bottom/side layout by viewport
 - parent settings update the kiosk display
+- parent settings weekly grant amount updates the record quick action
 - parent goals update the kiosk goal display
+- parent goal image URL is reflected on the kiosk
+- parent record grant/spend updates the kiosk balance
+- parent record blocks overspend through the UI
+- history cancellation adds a correction transaction and disables duplicate cancellation
 - API rejects writes without parent PIN
 - API rejects goal updates without parent PIN
 - API rejects overspend
 - API prevents double cancellation
+- each E2E test resets the test database before running
 - server fails to start when `TOKEN_ECO_PARENT_PIN` is missing
 - screenshot baselines catch visual layout regressions
 - desktop Chromium and mobile viewport both pass

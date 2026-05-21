@@ -9,7 +9,7 @@ export function ParentSettings({
   onSaveSettings,
 }: {
   state: AppState;
-  onSaveSettings: (input: { settings: Settings; children: Child[] }) => void;
+  onSaveSettings: (input: { settings: Settings; children: Child[] }) => void | Promise<void>;
 }) {
   const sortedChildren = useMemo(
     () => [...state.children].sort((a, b) => a.displayOrder - b.displayOrder),
@@ -32,14 +32,14 @@ export function ParentSettings({
     setMessage("");
   };
 
-  const save = () => {
+  const save = async () => {
     const normalizedChildren = children.map((child, index) => ({
       ...child,
       name: child.name.trim() || `こども${index + 1}`,
       ageLabel: child.ageLabel.trim() || "こども",
       displayOrder: index + 1,
     }));
-    onSaveSettings({ settings, children: normalizedChildren });
+    await onSaveSettings({ settings, children: normalizedChildren });
     setMessage("保存しました");
   };
 
@@ -116,6 +116,7 @@ function NumberStepper({
       <div className="static-stepper with-suffix">
         <button onClick={() => onChange(Math.max(1, value - step))}>-</button>
         <input
+          aria-label={`${label}の数`}
           inputMode="numeric"
           value={value}
           onChange={(event) => onChange(Number(event.target.value) || 1)}

@@ -12,7 +12,7 @@ export function ParentGoal({
   onSaveGoals,
 }: {
   state: AppState;
-  onSaveGoals: (goals: Goal[]) => void;
+  onSaveGoals: (goals: Goal[]) => void | Promise<void>;
 }) {
   const activeChildren = useMemo(
     () => [...state.children].filter((child) => child.isActive).sort((a, b) => a.displayOrder - b.displayOrder),
@@ -29,14 +29,14 @@ export function ParentGoal({
     setMessage("");
   };
 
-  const save = () => {
+  const save = async () => {
     const normalizedGoals = goals.map((item) => ({
       ...item,
       title: item.title.trim() || "ほしいもの",
       targetAmount: Math.max(1, Math.round(item.targetAmount)),
       imageUrl: item.imageUrl?.trim() || undefined,
     }));
-    onSaveGoals(normalizedGoals);
+    await onSaveGoals(normalizedGoals);
     setGoals(normalizedGoals);
     setMessage("保存しました");
   };
@@ -61,6 +61,7 @@ export function ParentGoal({
             <div className="static-stepper">
               <button onClick={() => updateGoal({ targetAmount: Math.max(1, goal.targetAmount - 1) })}>-</button>
               <input
+                aria-label="必要タグ数"
                 inputMode="numeric"
                 value={goal.targetAmount}
                 onChange={(event) => updateGoal({ targetAmount: Number(event.target.value) || 1 })}

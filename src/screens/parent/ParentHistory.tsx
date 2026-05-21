@@ -13,7 +13,7 @@ export function ParentHistory({
   onCancelTransaction,
 }: {
   state: AppState;
-  onCancelTransaction: (transaction: Transaction, reason: string) => void;
+  onCancelTransaction: (transaction: Transaction, reason: string) => void | Promise<void>;
 }) {
   const sorted = [...state.transactions].sort((a, b) => b.occurredAt.localeCompare(a.occurredAt));
   const [targetId, setTargetId] = useState<string | null>(null);
@@ -28,10 +28,10 @@ export function ParentHistory({
     setReasonNote("");
   };
 
-  const confirmCancel = () => {
+  const confirmCancel = async () => {
     if (!targetTransaction) return;
     const reason = [reasonType, reasonNote.trim()].filter(Boolean).join(": ");
-    onCancelTransaction(targetTransaction, reason);
+    await onCancelTransaction(targetTransaction, reason);
     closeCancelPanel();
   };
 

@@ -37,29 +37,47 @@ export function initDb() {
 
   const transactionCount = db.prepare("select count(*) as count from transactions").get().count;
   if (transactionCount === 0) {
-    const insert = db.prepare(`
-      insert into transactions
-        (id, child_id, type, amount, label, note, related_transaction_id, occurred_at)
-      values
-        (?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-    for (const transaction of seedState.transactions) {
-      insert.run(
-        transaction.id,
-        transaction.childId,
-        transaction.type,
-        transaction.amount,
-        transaction.label,
-        transaction.note ?? null,
-        transaction.relatedTransactionId ?? null,
-        transaction.occurredAt,
-      );
-    }
+    seedTransactions();
   }
+}
+
+export function resetAppStateForTest() {
+  if (process.env.TOKEN_ECO_TEST_RESET !== "1") {
+    throw httpError(404, "not_found");
+  }
+
+  db.exec("delete from transactions; delete from documents;");
+  seedDocument("settings", seedState.settings);
+  seedDocument("children", seedState.children);
+  seedDocument("shopItems", seedState.shopItems);
+  seedDocument("goals", seedState.goals);
+  seedDocument("lastUpdatedAt", seedState.lastUpdatedAt);
+  seedTransactions();
 }
 
 function seedDocument(key, value) {
   db.prepare("insert or ignore into documents (key, value) values (?, ?)").run(key, JSON.stringify(value));
+}
+
+function seedTransactions() {
+  const insert = db.prepare(`
+    insert into transactions
+      (id, child_id, type, amount, label, note, related_transaction_id, occurred_at)
+    values
+      (?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  for (const transaction of seedState.transactions) {
+    insert.run(
+      transaction.id,
+      transaction.childId,
+      transaction.type,
+      transaction.amount,
+      transaction.label,
+      transaction.note ?? null,
+      transaction.relatedTransactionId ?? null,
+      transaction.occurredAt,
+    );
+  }
 }
 
 export function readAppState() {
