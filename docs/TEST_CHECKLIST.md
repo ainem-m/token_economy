@@ -147,17 +147,17 @@ Current automated coverage:
 - API rejects writes without parent PIN
 - API rejects overspend
 - API prevents double cancellation
+- server fails to start when `TOKEN_ECO_PARENT_PIN` is missing
+- screenshot baselines catch visual layout regressions
 - desktop Chromium and mobile viewport both pass
 
 ## Confirmation List
 
 Need product-owner decision:
 
-- `/parent/goal` is still mostly static; decide whether editable goal save is next scope.
-- `/parent/shop` is not implemented; decide whether product price management is next scope.
-- Playwright covers local parent PIN behavior, but not real Cloudflare Access allowlist/JWT behavior.
-- Visual overlap checks are currently functional viewport checks, not screenshot/pixel assertions.
-- `TOKEN_ECO_PARENT_PIN` defaults to `2525` if the env var is missing; decide whether production should fail closed instead.
+- `/parent/goal` is still mostly static; editable goal save is the next implementation candidate.
+- `/parent/shop` is intentionally deferred.
+- Playwright covers local parent PIN behavior; real Cloudflare Access login is checked manually only at first entry.
 
 ## Phase 8+: Kiosk Resilience
 

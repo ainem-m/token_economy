@@ -3,7 +3,11 @@ import { createPublicKey, timingSafeEqual, webcrypto } from "node:crypto";
 const DEV_AUTH = process.env.TOKEN_ECO_AUTH_MODE !== "cloudflare";
 const TEAM_DOMAIN = process.env.CLOUDFLARE_TEAM_DOMAIN;
 const POLICY_AUD = process.env.CLOUDFLARE_POLICY_AUD;
-const PARENT_PIN = process.env.TOKEN_ECO_PARENT_PIN || "2525";
+const PARENT_PIN = process.env.TOKEN_ECO_PARENT_PIN;
+
+if (!PARENT_PIN) {
+  throw new Error("TOKEN_ECO_PARENT_PIN is required");
+}
 
 let jwksCache = null;
 

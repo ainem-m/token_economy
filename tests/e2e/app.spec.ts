@@ -2,6 +2,17 @@ import { expect, test } from "@playwright/test";
 
 const parentPinHeader = { "x-token-eco-parent-pin": "2468" };
 
+test("key screens match visual baselines", async ({ page }) => {
+  await page.goto("/kids");
+  await expect(page).toHaveScreenshot("kids-kiosk.png", { fullPage: true, maxDiffPixels: 100 });
+
+  await page.goto("/parent/settings");
+  await page.getByLabel("親モードPIN").fill("2468");
+  await page.getByRole("button", { name: "開く" }).click();
+  await expect(page.getByRole("heading", { name: "タグ設定" })).toBeVisible();
+  await expect(page).toHaveScreenshot("parent-settings.png", { fullPage: true, maxDiffPixels: 100 });
+});
+
 test("kids kiosk stays display-only and child-safe", async ({ page }) => {
   await page.goto("/kids");
 

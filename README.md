@@ -47,7 +47,7 @@ VPS版に近い形で試す:
 
 ```bash
 npm run build
-npm start
+TOKEN_ECO_PARENT_PIN=2525 npm start
 ```
 
 Default URL:
