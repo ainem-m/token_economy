@@ -74,6 +74,16 @@ CLOUDFLARE_POLICY_AUD=<access-application-aud>
 TOKEN_ECO_PARENT_PIN=2525
 ```
 
+## Tests
+
+Run the Playwright E2E path:
+
+```bash
+npm run test:e2e
+```
+
+The test server uses `data/playwright.sqlite` and parent PIN `2468`.
+
 ## Non-Negotiables
 
 - 子ども画面から台帳を変更できないこと

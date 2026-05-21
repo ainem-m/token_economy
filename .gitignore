@@ -11,3 +11,5 @@ vite.config.d.ts
 logs/
 coverage/
 data/
+playwright-report/
+test-results/
