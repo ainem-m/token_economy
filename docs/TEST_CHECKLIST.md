@@ -144,7 +144,9 @@ Current automated coverage:
 - `/parent/record`, `/parent/history`, `/parent/goal`, and `/parent/settings` require PIN
 - parent navigation switches bottom/side layout by viewport
 - parent settings update the kiosk display
+- parent goals update the kiosk goal display
 - API rejects writes without parent PIN
+- API rejects goal updates without parent PIN
 - API rejects overspend
 - API prevents double cancellation
 - server fails to start when `TOKEN_ECO_PARENT_PIN` is missing
@@ -155,7 +157,6 @@ Current automated coverage:
 
 Need product-owner decision:
 
-- `/parent/goal` is still mostly static; editable goal save is the next implementation candidate.
 - `/parent/shop` is intentionally deferred.
 - Playwright covers local parent PIN behavior; real Cloudflare Access login is checked manually only at first entry.
 

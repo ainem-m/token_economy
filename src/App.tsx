@@ -5,6 +5,7 @@ import {
   ApiUnavailableError,
   fetchState,
   postCancelTransaction,
+  postGoals,
   postSettings,
   postTransaction,
   type SessionAccount,
@@ -22,7 +23,7 @@ import {
   type AppState,
   type TransactionInput,
 } from "./state/appState";
-import type { Child, Settings as AppSettings, Transaction } from "./domain/types";
+import type { Child, Goal, Settings as AppSettings, Transaction } from "./domain/types";
 
 type Route = "/kids" | "/parent/record" | "/parent/history" | "/parent/goal" | "/parent/settings";
 
@@ -191,6 +192,35 @@ export function App() {
     }));
   };
 
+  const saveGoals = async (goals: Goal[]) => {
+    if (!parentPin) {
+      setAccessDenied(true);
+      return;
+    }
+
+    try {
+      const result = await postGoals(goals, parentPin);
+      setAppState(result.state);
+      setAccount(result.account);
+      setAccessDenied(false);
+      return;
+    } catch (error) {
+      if (error instanceof ApiForbiddenError) {
+        setAccessDenied(true);
+        return;
+      }
+      if (!(error instanceof ApiUnavailableError)) {
+        console.error(error);
+      }
+    }
+
+    updateAppState((current) => ({
+      ...current,
+      goals,
+      lastUpdatedAt: new Date().toISOString(),
+    }));
+  };
+
   const unlockParent = (pin: string) => {
     setParentPin(pin);
     setAccessDenied(false);
@@ -223,7 +253,7 @@ export function App() {
   }
 
   if (route === "/parent/goal") {
-    return renderParent(<ParentGoal state={appState} />);
+    return renderParent(<ParentGoal state={appState} onSaveGoals={saveGoals} />);
   }
 
   if (route === "/parent/settings") {

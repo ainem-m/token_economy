@@ -98,11 +98,14 @@ Build:
 - `/parent/goal`
 - one active goal per child
 - preset goal image selection
+- optional goal image URL
 - progress display
 - achieved display
 
 Done:
 
+- 目標名、必要タグ数、画像プリセット、画像URLを保存できる
+- 保存した目標が子ども画面に反映される
 - 目標まであと何個が表示される
 - 達成時に「たっせい！」が表示される
 

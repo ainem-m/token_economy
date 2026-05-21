@@ -1,5 +1,5 @@
 import type { AppState, TransactionInput } from "../state/appState";
-import type { Transaction } from "../domain/types";
+import type { Goal, Transaction } from "../domain/types";
 
 export type SessionAccount = {
   email: string;
@@ -44,6 +44,13 @@ export async function postSettings(state: Pick<AppState, "settings" | "children"
   return request("/api/settings", {
     method: "POST",
     body: JSON.stringify(state),
+  }, parentPin);
+}
+
+export async function postGoals(goals: Goal[], parentPin: string): Promise<ApiState> {
+  return request("/api/goals", {
+    method: "POST",
+    body: JSON.stringify({ goals }),
   }, parentPin);
 }
 

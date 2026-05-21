@@ -126,6 +126,15 @@ export function updateSettings(input) {
   writeDocument("lastUpdatedAt", updatedAt);
 }
 
+export function updateGoals(input) {
+  const current = readAppState();
+  const goals = normalizeGoals(input.goals, current.goals, current.children);
+  const updatedAt = new Date().toISOString();
+
+  writeDocument("goals", goals);
+  writeDocument("lastUpdatedAt", updatedAt);
+}
+
 function normalizeSettings(input, fallback) {
   return {
     ...fallback,
@@ -149,6 +158,30 @@ function normalizeChildren(input, fallback) {
       isActive: typeof next.isActive === "boolean" ? next.isActive : child.isActive,
     };
   });
+}
+
+function normalizeGoals(input, fallback, children) {
+  if (!Array.isArray(input)) return fallback;
+  const activeChildIds = new Set(children.filter((child) => child.isActive).map((child) => child.id));
+
+  return fallback.map((goal) => {
+    const next = input.find((candidate) => candidate?.id === goal.id);
+    if (!next || !activeChildIds.has(goal.childId)) return goal;
+    const imageUrl = String(next.imageUrl || "").trim();
+
+    return {
+      ...goal,
+      title: String(next.title || goal.title).trim().slice(0, 32) || goal.title,
+      targetAmount: positiveInteger(next.targetAmount, goal.targetAmount),
+      imagePreset: normalizePreset(next.imagePreset, goal.imagePreset),
+      imageUrl: imageUrl ? imageUrl.slice(0, 500) : undefined,
+    };
+  });
+}
+
+function normalizePreset(value, fallback) {
+  const presets = new Set(["choco", "ice", "gacha", "blocks", "book", "plush", "coin"]);
+  return presets.has(value) ? value : fallback;
 }
 
 function positiveInteger(value, fallback) {

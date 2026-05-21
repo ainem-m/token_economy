@@ -2,7 +2,7 @@ import { createReadStream, existsSync } from "node:fs";
 import { createServer } from "node:http";
 import path from "node:path";
 import { authenticate, requireParentPin } from "./auth.mjs";
-import { addTransaction, cancelTransaction, initDb, readAppState, updateSettings } from "./db.mjs";
+import { addTransaction, cancelTransaction, initDb, readAppState, updateGoals, updateSettings } from "./db.mjs";
 
 const PORT = Number(process.env.PORT || 8787);
 const HOST = process.env.HOST || "127.0.0.1";
@@ -65,6 +65,12 @@ async function handleApi(request, response) {
 
   if (request.method === "POST" && url.pathname === "/api/settings") {
     updateSettings(await readJson(request));
+    sendJson(response, 200, { state: readAppState(), account });
+    return;
+  }
+
+  if (request.method === "POST" && url.pathname === "/api/goals") {
+    updateGoals(await readJson(request));
     sendJson(response, 200, { state: readAppState(), account });
     return;
   }

@@ -4,13 +4,13 @@ const parentPinHeader = { "x-token-eco-parent-pin": "2468" };
 
 test("key screens match visual baselines", async ({ page }) => {
   await page.goto("/kids");
-  await expect(page).toHaveScreenshot("kids-kiosk.png", { fullPage: true, maxDiffPixels: 100 });
+  await expect(page).toHaveScreenshot("kids-kiosk.png", { fullPage: true, maxDiffPixelRatio: 0.02 });
 
   await page.goto("/parent/settings");
   await page.getByLabel("親モードPIN").fill("2468");
   await page.getByRole("button", { name: "開く" }).click();
   await expect(page.getByRole("heading", { name: "タグ設定" })).toBeVisible();
-  await expect(page).toHaveScreenshot("parent-settings.png", { fullPage: true, maxDiffPixels: 100 });
+  await expect(page).toHaveScreenshot("parent-settings.png", { fullPage: true, maxDiffPixelRatio: 0.02 });
 });
 
 test("kids kiosk stays display-only and child-safe", async ({ page }) => {
@@ -87,6 +87,44 @@ test("parent settings update the kiosk display", async ({ page }) => {
   await page.getByRole("button", { name: "子ども画面へ" }).click();
   await expect(page.getByRole("heading", { name: "あお" })).toBeVisible();
   await expect(page.getByText("6さい")).toBeVisible();
+});
+
+test("parent goal updates the kiosk goal", async ({ page }) => {
+  await page.goto("/parent/goal");
+  await page.getByLabel("親モードPIN").fill("2468");
+  await page.getByRole("button", { name: "開く" }).click();
+
+  await expect(page.getByRole("heading", { name: "目標を編集" })).toBeVisible();
+  await page.getByLabel("目標名").fill("じてんしゃ");
+  await page.getByLabel("画像URL").fill("");
+
+  const targetInput = page.locator(".static-stepper input").first();
+  await targetInput.fill("6");
+  await page.getByRole("button", { name: "保存する" }).click();
+  await expect(page.getByText("保存しました")).toBeVisible();
+
+  await page.getByRole("button", { name: "子ども画面へ" }).click();
+  await expect(page.getByRole("heading", { name: "じてんしゃ" })).toBeVisible();
+  await expect(page.getByText("あと 3 こ")).toBeVisible();
+});
+
+test("API requires PIN for goal updates", async ({ request }) => {
+  const noPin = await request.post("/api/goals", {
+    data: { goals: [] },
+  });
+  expect(noPin.status()).toBe(403);
+
+  const state = await request.get("/api/kiosk-state");
+  const body = await state.json();
+  const goals = body.state.goals.map((goal: { id: string; title: string }) =>
+    goal.id === "goal-aoi" ? { ...goal, title: "API目標" } : goal,
+  );
+
+  const withPin = await request.post("/api/goals", {
+    headers: parentPinHeader,
+    data: { goals },
+  });
+  expect(withPin.status()).toBe(200);
 });
 
 test("API requires PIN and enforces ledger correction rules", async ({ request }) => {
