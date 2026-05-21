@@ -18,6 +18,7 @@ export function ParentSettings({
   const [settings, setSettings] = useState(state.settings);
   const [children, setChildren] = useState(sortedChildren);
   const [message, setMessage] = useState("");
+  const [pending, setPending] = useState(false);
 
   const updateSetting = (key: keyof Settings, value: number) => {
     setSettings((current) => ({
@@ -39,8 +40,15 @@ export function ParentSettings({
       ageLabel: child.ageLabel.trim() || "こども",
       displayOrder: index + 1,
     }));
-    await onSaveSettings({ settings, children: normalizedChildren });
-    setMessage("保存しました");
+    setPending(true);
+    try {
+      await onSaveSettings({ settings, children: normalizedChildren });
+      setMessage("保存しました");
+    } catch {
+      setMessage("保存できませんでした");
+    } finally {
+      setPending(false);
+    }
   };
 
   return (
@@ -72,7 +80,7 @@ export function ParentSettings({
       <ParentSection title="子ども表示" caption="キオスクに出る名前とラベル">
         <div className="child-settings-list">
           {children.map((child) => (
-            <section className="child-settings-row" key={child.id}>
+            <section className="child-settings-row" key={child.id} aria-label={`${child.displayOrder}人目の表示設定`}>
               <div className={`settings-avatar ${child.color}`}>{child.avatar === "girl" ? "👧" : "👦"}</div>
               <label>
                 名前
@@ -87,9 +95,9 @@ export function ParentSettings({
         </div>
       </ParentSection>
 
-      {message && <p className="record-message">{message}</p>}
+      {message && <p className={message.includes("できません") ? "record-message error" : "record-message"}>{message}</p>}
 
-      <button className="primary-action" onClick={save}>
+      <button className="primary-action" onClick={save} disabled={pending}>
         <Save size={20} />
         保存する
       </button>

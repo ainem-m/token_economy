@@ -19,6 +19,8 @@ export function ParentHistory({
   const [targetId, setTargetId] = useState<string | null>(null);
   const [reasonType, setReasonType] = useState(cancelReasons[0]);
   const [reasonNote, setReasonNote] = useState("");
+  const [message, setMessage] = useState("");
+  const [pending, setPending] = useState(false);
 
   const targetTransaction = sorted.find((transaction) => transaction.id === targetId);
 
@@ -26,13 +28,21 @@ export function ParentHistory({
     setTargetId(null);
     setReasonType(cancelReasons[0]);
     setReasonNote("");
+    setMessage("");
   };
 
   const confirmCancel = async () => {
     if (!targetTransaction) return;
     const reason = [reasonType, reasonNote.trim()].filter(Boolean).join(": ");
-    await onCancelTransaction(targetTransaction, reason);
-    closeCancelPanel();
+    setPending(true);
+    try {
+      await onCancelTransaction(targetTransaction, reason);
+      closeCancelPanel();
+    } catch {
+      setMessage("取り消しできませんでした");
+    } finally {
+      setPending(false);
+    }
   };
 
   return (
@@ -57,8 +67,9 @@ export function ParentHistory({
             </label>
             <div className="cancel-actions">
               <button onClick={closeCancelPanel}>やめる</button>
-              <button className="danger" onClick={confirmCancel}>取り消す</button>
+              <button className="danger" onClick={confirmCancel} disabled={pending}>取り消す</button>
             </div>
+            {message && <p className="record-message error">{message}</p>}
           </div>
         )}
         <div className="history-list">
@@ -71,6 +82,7 @@ export function ParentHistory({
                 setTargetId(transaction.id);
                 setReasonType(cancelReasons[0]);
                 setReasonNote("");
+                setMessage("");
               }}
             />
           ))}
@@ -95,7 +107,10 @@ function HistoryRow({
   const cancelled = isTransactionCancelled(state.transactions, transaction.id);
 
   return (
-    <article className={cancelled ? "history-row cancelled" : "history-row"}>
+    <article
+      className={cancelled ? "history-row cancelled" : "history-row"}
+      aria-label={[child?.name ?? "子ども", transaction.label, transaction.note].filter(Boolean).join(" ")}
+    >
       <div className="date-pill">{formatDate(transaction.occurredAt)}</div>
       <ItemIcon preset={preset} />
       <div className="history-text">

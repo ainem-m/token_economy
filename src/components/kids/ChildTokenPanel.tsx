@@ -37,7 +37,7 @@ export function ChildTokenPanel({
       </header>
 
       <div className="token-summary">
-        <div className="total-token">
+        <div className="total-token" aria-label={`${child.name}の合計 ${displayBalance}こ`}>
           <div className="token-number">
             <span className="star-coin">★</span>
             <strong>{displayBalance}</strong>
@@ -46,7 +46,7 @@ export function ChildTokenPanel({
           <TokenIconStrip count={displayBalance} icon="★" label={`${displayBalance}このタグ`} />
         </div>
         <div className="token-breakdown">
-          <div>
+          <div aria-label={`${child.name}のちょきん ${savedTokens}こ`}>
             <PiggyBank size={24} />
             <span>ちょきん</span>
             <b>{savedTokens}</b>
@@ -76,7 +76,7 @@ function GoalImage({ goal }: { goal: Goal }) {
   }
 
   return (
-    <div className="goal-image preset" aria-label={goal.title}>
+    <div className="goal-image preset" role="img" aria-label={goal.title}>
       <ItemIcon preset={goal.imagePreset} large />
     </div>
   );

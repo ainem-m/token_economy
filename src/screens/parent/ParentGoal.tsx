@@ -21,6 +21,7 @@ export function ParentGoal({
   const [goals, setGoals] = useState(state.goals);
   const [childId, setChildId] = useState(activeChildren[0]?.id ?? "");
   const [message, setMessage] = useState("");
+  const [pending, setPending] = useState(false);
 
   const goal = goals.find((item) => item.childId === childId && item.status === "active") ?? goals[0];
 
@@ -36,9 +37,16 @@ export function ParentGoal({
       targetAmount: Math.max(1, Math.round(item.targetAmount)),
       imageUrl: item.imageUrl?.trim() || undefined,
     }));
-    await onSaveGoals(normalizedGoals);
-    setGoals(normalizedGoals);
-    setMessage("保存しました");
+    setPending(true);
+    try {
+      await onSaveGoals(normalizedGoals);
+      setGoals(normalizedGoals);
+      setMessage("保存しました");
+    } catch {
+      setMessage("保存できませんでした");
+    } finally {
+      setPending(false);
+    }
   };
 
   return (
@@ -90,9 +98,9 @@ export function ParentGoal({
         </div>
       </ParentSection>
 
-      {message && <p className="record-message">{message}</p>}
+      {message && <p className={message.includes("できません") ? "record-message error" : "record-message"}>{message}</p>}
 
-      <button className="primary-action" onClick={save}>
+      <button className="primary-action" onClick={save} disabled={pending}>
         <Save size={20} />
         保存する
       </button>

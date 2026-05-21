@@ -153,6 +153,7 @@ Current automated coverage:
 - API rejects writes without parent PIN
 - API rejects goal updates without parent PIN
 - API rejects overspend
+- API rejects invalid transaction type/sign combinations
 - API prevents double cancellation
 - each E2E test resets the test database before running
 - server fails to start when `TOKEN_ECO_PARENT_PIN` is missing

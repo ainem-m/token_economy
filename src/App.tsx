@@ -122,7 +122,7 @@ export function App() {
         return;
       }
       if (!(error instanceof ApiUnavailableError)) {
-        console.error(error);
+        throw error;
       }
     }
 
@@ -151,7 +151,7 @@ export function App() {
         return;
       }
       if (!(error instanceof ApiUnavailableError)) {
-        console.error(error);
+        throw error;
       }
     }
 
@@ -180,7 +180,7 @@ export function App() {
         return;
       }
       if (!(error instanceof ApiUnavailableError)) {
-        console.error(error);
+        throw error;
       }
     }
 
@@ -210,7 +210,7 @@ export function App() {
         return;
       }
       if (!(error instanceof ApiUnavailableError)) {
-        console.error(error);
+        throw error;
       }
     }
 

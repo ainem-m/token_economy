@@ -29,6 +29,7 @@ export function ParentRecord({
   const [label, setLabel] = useState("土ようび");
   const [note, setNote] = useState("物理タグの受け渡し");
   const [message, setMessage] = useState("");
+  const [pending, setPending] = useState(false);
   const balance = getBalance(state.transactions, childId);
 
   const chooseWeeklyGrant = () => {
@@ -56,14 +57,21 @@ export function ParentRecord({
       return;
     }
 
-    await onAddTransaction({
-      childId,
-      type: mode as TransactionType,
-      amount: signedAmount,
-      label: label.trim() || (mode === "grant" ? "もらった" : "つかった"),
-      note: note.trim(),
-    });
-    setMessage("記録しました");
+    setPending(true);
+    try {
+      await onAddTransaction({
+        childId,
+        type: mode as TransactionType,
+        amount: signedAmount,
+        label: label.trim() || (mode === "grant" ? "もらった" : "つかった"),
+        note: note.trim(),
+      });
+      setMessage("記録しました");
+    } catch {
+      setMessage("記録できませんでした");
+    } finally {
+      setPending(false);
+    }
   };
 
   return (
@@ -108,9 +116,9 @@ export function ParentRecord({
           <label>
             数量
             <div className="static-stepper">
-              <button onClick={() => setAmount(Math.max(1, amount - 1))}>-</button>
-              <input value={amount} readOnly />
-              <button onClick={() => setAmount(amount + 1)}>+</button>
+              <button aria-label="数量を減らす" onClick={() => setAmount(Math.max(1, amount - 1))}>-</button>
+              <input aria-label="数量" value={amount} readOnly />
+              <button aria-label="数量を増やす" onClick={() => setAmount(amount + 1)}>+</button>
             </div>
           </label>
           <label>
@@ -122,7 +130,7 @@ export function ParentRecord({
 
       {message && <p className={message.includes("できません") ? "record-message error" : "record-message"}>{message}</p>}
 
-      <button className="primary-action" onClick={record}>
+      <button className="primary-action" onClick={record} disabled={pending}>
         <Save size={20} />
         記録する
       </button>

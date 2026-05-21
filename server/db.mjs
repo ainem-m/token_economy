@@ -4,6 +4,11 @@ import { DatabaseSync } from "node:sqlite";
 import { seedState } from "./seedData.mjs";
 
 const DB_PATH = process.env.TOKEN_ECO_DB || path.join(process.cwd(), "data", "token-eco.sqlite");
+const TEST_RESET_ENABLED = process.env.TOKEN_ECO_TEST_RESET === "1";
+
+if (TEST_RESET_ENABLED && !DB_PATH.endsWith("playwright.sqlite")) {
+  throw new Error("TOKEN_ECO_TEST_RESET can only be used with the Playwright test database");
+}
 
 mkdirSync(path.dirname(DB_PATH), { recursive: true });
 
@@ -42,17 +47,24 @@ export function initDb() {
 }
 
 export function resetAppStateForTest() {
-  if (process.env.TOKEN_ECO_TEST_RESET !== "1") {
+  if (!TEST_RESET_ENABLED) {
     throw httpError(404, "not_found");
   }
 
-  db.exec("delete from transactions; delete from documents;");
-  seedDocument("settings", seedState.settings);
-  seedDocument("children", seedState.children);
-  seedDocument("shopItems", seedState.shopItems);
-  seedDocument("goals", seedState.goals);
-  seedDocument("lastUpdatedAt", seedState.lastUpdatedAt);
-  seedTransactions();
+  db.exec("begin immediate");
+  try {
+    db.exec("delete from transactions; delete from documents;");
+    seedDocument("settings", seedState.settings);
+    seedDocument("children", seedState.children);
+    seedDocument("shopItems", seedState.shopItems);
+    seedDocument("goals", seedState.goals);
+    seedDocument("lastUpdatedAt", seedState.lastUpdatedAt);
+    seedTransactions();
+    db.exec("commit");
+  } catch (error) {
+    db.exec("rollback");
+    throw error;
+  }
 }
 
 function seedDocument(key, value) {
@@ -91,19 +103,16 @@ export function readAppState() {
   };
 }
 
-export function addTransaction(input) {
-  if (input.type === "spend" && input.amount < 0 && Math.abs(input.amount) > getBalance(input.childId)) {
+export function addTransaction(input, options = {}) {
+  const normalized = normalizeTransactionInput(input, options);
+
+  if (normalized.type === "spend" && Math.abs(normalized.amount) > getBalance(normalized.childId)) {
     throw httpError(400, "insufficient_balance");
   }
 
   const transaction = {
     id: crypto.randomUUID(),
-    childId: input.childId,
-    type: input.type,
-    amount: input.amount,
-    label: input.label,
-    note: input.note || undefined,
-    relatedTransactionId: input.relatedTransactionId,
+    ...normalized,
     occurredAt: new Date().toISOString(),
   };
 
@@ -126,7 +135,7 @@ export function cancelTransaction(sourceId, reason) {
     label: `取り消し: ${source.label}`,
     note: reason,
     relatedTransactionId: source.id,
-  });
+  }, { allowCancel: true });
 }
 
 function getBalance(childId) {
@@ -159,6 +168,37 @@ function normalizeSettings(input, fallback) {
     tokenYen: positiveInteger(input?.tokenYen, fallback.tokenYen),
     physicalTokenLimit: positiveInteger(input?.physicalTokenLimit, fallback.physicalTokenLimit),
     weeklyGrantAmount: positiveInteger(input?.weeklyGrantAmount, fallback.weeklyGrantAmount),
+  };
+}
+
+function normalizeTransactionInput(input, { allowCancel = false } = {}) {
+  const current = readAppState();
+  const child = current.children.find((candidate) => candidate.id === input?.childId && candidate.isActive);
+  if (!child) throw httpError(400, "invalid_child");
+
+  const type = String(input?.type || "");
+  const allowedTypes = allowCancel ? new Set(["grant", "spend", "cancel"]) : new Set(["grant", "spend"]);
+  if (!allowedTypes.has(type)) throw httpError(400, "invalid_transaction_type");
+
+  const amount = Number(input?.amount);
+  if (!Number.isInteger(amount) || amount === 0) throw httpError(400, "invalid_amount");
+  if (type === "grant" && amount <= 0) throw httpError(400, "invalid_amount_sign");
+  if (type === "spend" && amount >= 0) throw httpError(400, "invalid_amount_sign");
+  if (type === "cancel" && !input?.relatedTransactionId) throw httpError(400, "invalid_cancel");
+
+  const label = String(input?.label || "").trim().slice(0, 32);
+  if (!label) throw httpError(400, "invalid_label");
+
+  const note = String(input?.note || "").trim().slice(0, 120);
+  const relatedTransactionId = input?.relatedTransactionId ? String(input.relatedTransactionId).slice(0, 80) : undefined;
+
+  return {
+    childId: child.id,
+    type,
+    amount,
+    label,
+    note: note || undefined,
+    relatedTransactionId,
   };
 }
 
