@@ -90,7 +90,7 @@ The script does:
 - runs `npm ci`
 - runs `npm run build`
 - restarts `token-eco.service` when it exists
-- checks `http://127.0.0.1:8787/kids`
+- checks `http://127.0.0.1:8787/kids` with retries
 
 If the systemd service name is different:
 
@@ -102,6 +102,12 @@ If the restart command is custom:
 
 ```bash
 TOKEN_ECO_RESTART_CMD="pm2 restart token-eco" ./scripts/update-vps.sh
+```
+
+If the app listens on a different port or path:
+
+```bash
+TOKEN_ECO_HEALTH_URL="http://127.0.0.1:3000/kids" ./scripts/update-vps.sh
 ```
 
 ## Tests

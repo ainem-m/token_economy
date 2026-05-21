@@ -9,6 +9,8 @@ SERVICE_NAME="${TOKEN_ECO_SERVICE:-token-eco}"
 DB_PATH="${TOKEN_ECO_DB:-${REPO_DIR}/data/token-eco.sqlite}"
 BACKUP_DIR="${TOKEN_ECO_BACKUP_DIR:-${REPO_DIR}/data/backups}"
 HEALTH_URL="${TOKEN_ECO_HEALTH_URL:-http://127.0.0.1:${PORT:-8787}/kids}"
+HEALTH_ATTEMPTS="${TOKEN_ECO_HEALTH_ATTEMPTS:-20}"
+HEALTH_SLEEP_SECONDS="${TOKEN_ECO_HEALTH_SLEEP_SECONDS:-1}"
 
 log() {
   printf '[%s] %s\n' "${APP_NAME}" "$*"
@@ -129,7 +131,25 @@ check_health() {
   fi
 
   log "Checking ${HEALTH_URL}"
-  curl -fsS --max-time 8 "${HEALTH_URL}" >/dev/null
+  for attempt in $(seq 1 "${HEALTH_ATTEMPTS}"); do
+    if curl -fsS --max-time 3 "${HEALTH_URL}" >/dev/null; then
+      log "Health check passed"
+      return
+    fi
+
+    if [[ "${attempt}" != "${HEALTH_ATTEMPTS}" ]]; then
+      sleep "${HEALTH_SLEEP_SECONDS}"
+    fi
+  done
+
+  if command_exists systemctl; then
+    local unit="${SERVICE_NAME}.service"
+    log "Recent ${unit} logs:"
+    sudo systemctl --no-pager --full status "${unit}" || true
+    sudo journalctl -u "${unit}" -n 40 --no-pager || true
+  fi
+
+  fail "Health check failed after ${HEALTH_ATTEMPTS} attempts. Check TOKEN_ECO_HEALTH_URL, PORT, and service logs."
 }
 
 main() {
