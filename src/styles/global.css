@@ -896,6 +896,7 @@ input {
 
 @media (min-width: 900px) {
   .parent-shell {
+    --parent-desktop-nav-top: 112px;
     width: min(100%, 960px);
     padding: 18px 18px 24px 104px;
   }
@@ -944,8 +945,47 @@ input {
     grid-column: 1 / -1;
   }
 
+  .history-list {
+    gap: 8px;
+  }
+
+  .history-row {
+    grid-template-columns: 72px 40px minmax(0, 1fr) auto auto;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 12px;
+  }
+
+  .history-row .item-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 26px;
+  }
+
+  .date-pill {
+    font-size: 0.82rem;
+  }
+
+  .history-text {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .history-text em {
+    margin-top: 0;
+  }
+
+  .cancel-button {
+    grid-column: auto;
+    min-height: 34px;
+    padding: 0 12px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+
   .parent-nav {
-    top: 112px;
+    top: var(--parent-desktop-nav-top);
     right: auto;
     bottom: auto;
     left: calc(50% - min(50vw, 480px) + 18px);
