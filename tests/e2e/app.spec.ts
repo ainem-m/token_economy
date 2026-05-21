@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
 const parentPinHeader = { "x-token-eco-parent-pin": "2468" };
 const parentPin = "2468";
@@ -11,6 +11,11 @@ test.beforeEach(async ({ request }) => {
 async function unlockParent(page: Page) {
   await page.getByLabel("親モードPIN").fill(parentPin);
   await page.getByRole("button", { name: "開く" }).click();
+}
+
+async function expectClickable(locator: Locator) {
+  await expect(locator).toBeVisible();
+  await locator.click({ trial: true });
 }
 
 test("key screens match visual baselines", async ({ page }) => {
@@ -80,10 +85,24 @@ test("parent routes require PIN and parent layout responds to viewport width", a
     expect(box!.height).toBeGreaterThan(box!.width);
   }
 
-  await page.getByRole("button", { name: "履歴" }).click();
-  await expect(page.getByRole("heading", { name: "履歴" })).toBeVisible();
+  await expectClickable(page.getByRole("button", { name: "子ども画面へ" }));
+  await expectClickable(page.getByRole("button", { name: "保存する" }));
+
   await page.getByRole("button", { name: "記録" }).click();
   await expect(page.getByRole("heading", { name: "記録する" })).toBeVisible();
+  await expectClickable(page.getByRole("button", { name: "記録する" }));
+
+  await page.getByRole("button", { name: "履歴" }).click();
+  await expect(page.getByRole("heading", { name: "履歴" })).toBeVisible();
+  await expectClickable(page.getByRole("button", { name: "取消" }).first());
+
+  await page.getByRole("button", { name: "目標" }).click();
+  await expect(page.getByRole("heading", { name: "目標を編集" })).toBeVisible();
+  await expectClickable(page.getByRole("button", { name: "保存する" }));
+
+  await page.getByRole("button", { name: "設定" }).click();
+  await expect(page.getByRole("heading", { name: "タグ設定" })).toBeVisible();
+  await expectClickable(page.getByRole("button", { name: "保存する" }));
 });
 
 test("parent settings update the kiosk display", async ({ page }) => {
