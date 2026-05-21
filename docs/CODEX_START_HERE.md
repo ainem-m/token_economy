@@ -14,27 +14,21 @@ When starting a new implementation turn, read in this order:
    - Verification: [docs/TEST_CHECKLIST.md](TEST_CHECKLIST.md)
 5. [PLAN.md](../PLAN.md) for the relevant phase before coding
 
-## Default First Task
+## Current Implementation Baseline
 
-If the user asks to start implementation without further constraints, begin with Phase 1 static UI.
+The app is past the initial static phase. Current baseline:
 
-Phase 1 scope:
+- React + TypeScript + Vite frontend
+- Node API serving built assets
+- SQLite source of truth for VPS-style runs
+- parent PIN required for `/parent/*` and write APIs
+- `/kids` remains display-only
 
-- create a Vite React TypeScript app
-- build static `/kids`
-- build static `/parent/record`
-- build static `/parent/history`
-- build static `/parent/goal`
-- use fixed sample data
+Current exclusions:
 
-Phase 1 exclusions:
-
-- no persistence
-- no real ledger mutations
-- no real cancel logic
+- no child-side ledger mutations
 - no `/parent/shop`
 - no PWA hardening
-- no PIN enforcement
 
 Before coding, state:
 

@@ -204,44 +204,30 @@ export function App() {
     navigate("/kids");
   };
 
+  const renderParent = (children: ReactNode) => (
+    <ParentShell active={route} account={account} onLeaveParentMode={leaveParentMode}>
+      {children}
+    </ParentShell>
+  );
+
   if (accessDenied && route.startsWith("/parent")) {
-    return (
-      <ParentShell active={route} account={account} onLeaveParentMode={leaveParentMode}>
-        <ParentLock onUnlock={unlockParent} invalid={pinError} />
-      </ParentShell>
-    );
+    return renderParent(<ParentLock onUnlock={unlockParent} invalid={pinError} />);
   }
 
   if (route === "/parent/record") {
-    return (
-      <ParentShell active={route} account={account} onLeaveParentMode={leaveParentMode}>
-        <ParentRecord state={appState} onAddTransaction={addTransaction} />
-      </ParentShell>
-    );
+    return renderParent(<ParentRecord state={appState} onAddTransaction={addTransaction} />);
   }
 
   if (route === "/parent/history") {
-    return (
-      <ParentShell active={route} account={account} onLeaveParentMode={leaveParentMode}>
-        <ParentHistory state={appState} onCancelTransaction={cancelTransaction} />
-      </ParentShell>
-    );
+    return renderParent(<ParentHistory state={appState} onCancelTransaction={cancelTransaction} />);
   }
 
   if (route === "/parent/goal") {
-    return (
-      <ParentShell active={route} account={account} onLeaveParentMode={leaveParentMode}>
-        <ParentGoal state={appState} />
-      </ParentShell>
-    );
+    return renderParent(<ParentGoal state={appState} />);
   }
 
   if (route === "/parent/settings") {
-    return (
-      <ParentShell active={route} account={account} onLeaveParentMode={leaveParentMode}>
-        <ParentSettings state={appState} onSaveSettings={saveSettings} />
-      </ParentShell>
-    );
+    return renderParent(<ParentSettings state={appState} onSaveSettings={saveSettings} />);
   }
 
   return <KidsKiosk state={appState} onOpenParentRecord={() => navigate("/parent/record")} />;

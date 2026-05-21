@@ -10,7 +10,7 @@ let jwksCache = null;
 export async function authenticate(request) {
   if (DEV_AUTH) {
     const email = String(request.headers["x-token-eco-email"] || "local@token-eco.dev").toLowerCase();
-    return { email, role: "viewer" };
+    return { email };
   }
 
   const token = request.headers["cf-access-jwt-assertion"];
@@ -18,7 +18,7 @@ export async function authenticate(request) {
 
   const claims = await verifyAccessJwt(token);
   const email = String(claims.email || "").toLowerCase();
-  return { email, role: "viewer" };
+  return { email };
 }
 
 export function requireParentPin(request) {

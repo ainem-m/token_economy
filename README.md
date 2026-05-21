@@ -26,25 +26,20 @@
 - Test checklist: [docs/TEST_CHECKLIST.md](docs/TEST_CHECKLIST.md)
 - Deployment/auth: [docs/DEPLOYMENT_AUTH.md](docs/DEPLOYMENT_AUTH.md)
 
-## First Implementation Track
+## Current Implementation
 
-最初の実装トラックは、DBなしの端末内PoC。Phase 1では静的UIだけを作り、Phase 2でlocalStorageまたはIndexedDBを入れる。
+現在の実装はVPS運用を想定したPoC。
 
 - React + TypeScript + Vite
-- Phase 1: `/kids`, `/parent/record`, `/parent/history`, `/parent/goal` の静的UI
-- Phase 2: localStorage または IndexedDB による端末内PoC
-- Current VPS track: Node API + SQLite + parent PIN
-- Implemented parent settings: `/parent/settings`
-- Later: `/parent/shop`
+- Node API + SQLite
+- Cloudflare Access as the outer gate
+- in-app parent PIN for `/parent/*` and write APIs
+- `/kids`, `/parent/record`, `/parent/history`, `/parent/goal`, `/parent/settings`
 
-Phase 1でやらないこと:
+Later:
 
-- 永続化
-- 実際の取引作成
-- 実際の取り消し処理
-- 商品設定
-- PWA/Wake Lock
-- PINの実 enforcement
+- `/parent/shop`
+- PWA/Wake Lock hardening
 
 ## VPS-Style Local Run
 

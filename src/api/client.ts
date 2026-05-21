@@ -1,12 +1,8 @@
 import type { AppState, TransactionInput } from "../state/appState";
 import type { Transaction } from "../domain/types";
 
-export type AccountRole = "viewer";
-
 export type SessionAccount = {
   email: string;
-  role: AccountRole;
-  childId?: string;
 };
 
 export type ApiState = {

@@ -1,8 +1,8 @@
 # Project Structure
 
-Phase 1 starts from an empty workspace. Use this structure when creating the Vite React app.
+Current structure for the VPS-ready PoC. Keep the codebase small and route-oriented.
 
-## Target Tree After Phase 1
+## Current Tree
 
 ```text
 .
@@ -27,7 +27,14 @@ Phase 1 starts from an empty workspace. Use this structure when creating the Vit
 ├── public/
 │   ├── icon.svg
 │   └── manifest.webmanifest
+├── server/
+│   ├── auth.mjs
+│   ├── db.mjs
+│   ├── seedData.mjs
+│   └── server.mjs
 └── src/
+    ├── api/
+    │   └── client.ts
     ├── App.tsx
     ├── main.tsx
     ├── styles/
@@ -46,7 +53,8 @@ Phase 1 starts from an empty workspace. Use this structure when creating the Vit
         └── parent/
             ├── ParentGoal.tsx
             ├── ParentHistory.tsx
-            └── ParentRecord.tsx
+            ├── ParentRecord.tsx
+            └── ParentSettings.tsx
 ```
 
 ## Responsibilities
@@ -67,7 +75,7 @@ Expected files:
 
 ### `src/data/`
 
-Static fixtures for Phase 1.
+Static seed/fallback fixtures.
 
 - fixed children
 - fixed shop items
@@ -75,7 +83,15 @@ Static fixtures for Phase 1.
 - fixed transactions
 - fixed settings
 
-Do not use localStorage here in Phase 1.
+Do not put persistence logic here.
+
+### `src/api/`
+
+Frontend API boundary.
+
+- calls Node API routes
+- attaches parent PIN only for parent reads/writes
+- converts network/permission failures into small app-level errors
 
 ### `src/screens/`
 
@@ -85,8 +101,9 @@ Route-level screens.
 - `parent/ParentRecord.tsx`
 - `parent/ParentHistory.tsx`
 - `parent/ParentGoal.tsx`
+- `parent/ParentSettings.tsx`
 
-Screens may compose components and sample data.
+Screens may compose components and call callbacks passed from `App.tsx`.
 
 ### `src/components/`
 
@@ -102,28 +119,34 @@ Avoid abstract component layers before duplication exists.
 
 ### `src/styles/`
 
-Global app styling for Phase 1.
+Global app styling.
 
-Phase 1 can use one global CSS file. Split CSS later only if it becomes hard to maintain.
+One global CSS file is still acceptable at this size. Split CSS only when it becomes hard to maintain.
 
-## Routing In Phase 1
+### `server/`
 
-Use simple path-based routing in `App.tsx`.
+Small Node runtime for VPS-style deployment.
 
-Required routes:
+- `server.mjs`: static asset serving and API routing
+- `auth.mjs`: Cloudflare Access verification and parent PIN check
+- `db.mjs`: SQLite access and document/transaction persistence
+- `seedData.mjs`: initial data
+
+## Routing
 
 - `/kids`
 - `/parent/record`
 - `/parent/history`
 - `/parent/goal`
+- `/parent/settings`
 
 Redirect `/` to `/kids` or render the same screen.
 
-Do not add:
+Do not add yet:
 
 - `/parent/shop`
-- backend routes
-- auth routes
+- child purchase routes
+- child goal request routes
 
 ## Import Direction
 
@@ -131,8 +154,10 @@ Keep dependencies one-way:
 
 ```text
 screens -> components -> domain
-screens -> data -> domain
+screens -> api
+state -> data -> domain
 components -> domain
+server -> seed data
 ```
 
 Avoid:
@@ -141,22 +166,5 @@ Avoid:
 - `data` importing screens/components
 - child components importing parent components
 - parent components importing kids components, except shared `common`
-
-## Phase 2 Changes
-
-When moving to Phase 2:
-
-- add `src/store/` or `src/state/` for local persistence
-- keep `domain/` pure
-- keep `sampleData.ts` as seed/fallback data
-- do not mix persistence into visual components
-
-## VPS/Auth Changes
-
-When moving to the VPS version:
-
-- add `server/` for API, static asset serving, auth middleware, and SQLite access
-- add `src/api/` or `src/client/` for frontend API calls
-- keep `src/domain/` pure and shared where possible
-- keep Cloudflare Access JWT validation on the server
-- do not trust frontend role flags for mutation authorization
+- visual components performing direct fetches
+- frontend role flags controlling mutations
