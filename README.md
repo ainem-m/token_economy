@@ -110,6 +110,19 @@ If the app listens on a different port or path:
 TOKEN_ECO_HEALTH_URL="http://127.0.0.1:3000/kids" ./scripts/update-vps.sh
 ```
 
+## GitHub Actions Deploy
+
+`.github/workflows/deploy-vps.yml` deploys `master` to the VPS by SSH and runs `./scripts/update-vps.sh`.
+It starts as a manually triggered workflow so setup can be verified before enabling deploy-on-push.
+
+Required repository secrets:
+
+- `VPS_HOST`: VPS public SSH host or IP
+- `VPS_USER`: SSH user, for example `ubuntu`
+- `VPS_SSH_KEY`: private deploy key
+- `VPS_APP_DIR`: app directory, for example `/opt/token_eco`
+- `VPS_SSH_PORT`: optional SSH port; defaults to `22`
+
 ## Tests
 
 Run the Playwright E2E path:
