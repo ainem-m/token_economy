@@ -113,7 +113,7 @@ TOKEN_ECO_HEALTH_URL="http://127.0.0.1:3000/kids" ./scripts/update-vps.sh
 ## GitHub Actions Deploy
 
 `.github/workflows/deploy-vps.yml` deploys `master` to the VPS by SSH and runs `./scripts/update-vps.sh`.
-It starts as a manually triggered workflow so setup can be verified before enabling deploy-on-push.
+It runs on `master` pushes and can also be started manually from the Actions tab.
 
 Required repository secrets:
 
