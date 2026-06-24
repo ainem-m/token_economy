@@ -107,6 +107,31 @@ Rules:
 - achieved display is derived from balance >= targetAmount
 - parent decides when to complete/archive a goal
 
+## Mission
+
+```ts
+type Mission = {
+  id: string;
+  childId: string;
+  title: string;
+  rewardAmount: number;
+  deadlineAt?: string;
+  completedAt?: string;
+  completedTransactionId?: string;
+};
+```
+
+Rules:
+
+- one current mission per child
+- parent creates or overwrites the current mission
+- saving a new mission clears the prior completion state
+- child kiosk displays only the title, reward amount, and completed mark
+- parent records completion from `/parent/record`
+- completion creates one positive `grant` transaction labeled `ミッション: {title}`
+- duplicate completion of the same current mission is rejected
+- deadline is optional and soft: overdue is shown only to parents, and late completion is allowed
+
 ## Shop Item
 
 ```ts

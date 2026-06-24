@@ -1,5 +1,5 @@
-import type { AppState, TransactionInput } from "../state/appState";
-import type { Goal, Transaction } from "../domain/types";
+import type { AppState, MissionInput, TransactionInput } from "../state/appState";
+import type { Goal, Mission, Transaction } from "../domain/types";
 
 export type SessionAccount = {
   email: string;
@@ -51,6 +51,20 @@ export async function postGoals(goals: Goal[], parentPin: string): Promise<ApiSt
   return request("/api/goals", {
     method: "POST",
     body: JSON.stringify({ goals }),
+  }, parentPin);
+}
+
+export async function postMission(mission: MissionInput, parentPin: string): Promise<ApiState> {
+  return request("/api/missions", {
+    method: "POST",
+    body: JSON.stringify({ mission }),
+  }, parentPin);
+}
+
+export async function postCompleteMission(mission: Mission, parentPin: string): Promise<ApiState> {
+  return request(`/api/missions/${encodeURIComponent(mission.id)}/complete`, {
+    method: "POST",
+    body: JSON.stringify({}),
   }, parentPin);
 }
 

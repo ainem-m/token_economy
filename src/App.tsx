@@ -1,11 +1,13 @@
-import { ClipboardEdit, Delete, History, Home, LockKeyhole, Settings, Target, X } from "lucide-react";
+import { ClipboardCheck, ClipboardEdit, Delete, History, Home, LockKeyhole, Settings, Target, X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import {
   ApiForbiddenError,
   ApiUnavailableError,
   fetchState,
   postCancelTransaction,
+  postCompleteMission,
   postGoals,
+  postMission,
   postSettings,
   postTransaction,
   type SessionAccount,
@@ -13,21 +15,25 @@ import {
 import { KidsKiosk } from "./screens/KidsKiosk";
 import { ParentGoal } from "./screens/parent/ParentGoal";
 import { ParentHistory } from "./screens/parent/ParentHistory";
+import { ParentMission } from "./screens/parent/ParentMission";
 import { ParentRecord } from "./screens/parent/ParentRecord";
 import { ParentSettings } from "./screens/parent/ParentSettings";
 import {
   createCancelTransaction,
+  createMission,
   createTransaction,
   readStoredState,
+  replaceCurrentMission,
   writeStoredState,
   type AppState,
+  type MissionInput,
   type TransactionInput,
 } from "./state/appState";
-import type { Child, Goal, Settings as AppSettings, Transaction } from "./domain/types";
+import type { Child, Goal, Mission, Settings as AppSettings, Transaction } from "./domain/types";
 
-type Route = "/kids" | "/parent/record" | "/parent/history" | "/parent/goal" | "/parent/settings";
+type Route = "/kids" | "/parent/record" | "/parent/history" | "/parent/goal" | "/parent/mission" | "/parent/settings";
 
-const routes: Route[] = ["/kids", "/parent/record", "/parent/history", "/parent/goal", "/parent/settings"];
+const routes: Route[] = ["/kids", "/parent/record", "/parent/history", "/parent/goal", "/parent/mission", "/parent/settings"];
 
 function getRoute(): Route {
   const path = window.location.pathname;
@@ -223,6 +229,79 @@ export function App() {
     }));
   };
 
+  const saveMission = async (input: MissionInput) => {
+    if (!parentPin) {
+      setAccessDenied(true);
+      return;
+    }
+
+    try {
+      const result = await postMission(input, parentPin);
+      setAppState(result.state);
+      setAccount(result.account);
+      setAccessDenied(false);
+      return;
+    } catch (error) {
+      if (error instanceof ApiForbiddenError) {
+        setAccessDenied(true);
+        return;
+      }
+      if (!(error instanceof ApiUnavailableError)) {
+        throw error;
+      }
+    }
+
+    updateAppState((current) => ({
+      ...current,
+      missions: replaceCurrentMission(current.missions, createMission(input)),
+      lastUpdatedAt: new Date().toISOString(),
+    }));
+  };
+
+  const completeMission = async (mission: Mission) => {
+    if (!parentPin) {
+      setAccessDenied(true);
+      return;
+    }
+
+    try {
+      const result = await postCompleteMission(mission, parentPin);
+      setAppState(result.state);
+      setAccount(result.account);
+      setAccessDenied(false);
+      return;
+    } catch (error) {
+      if (error instanceof ApiForbiddenError) {
+        setAccessDenied(true);
+        return;
+      }
+      if (!(error instanceof ApiUnavailableError)) {
+        throw error;
+      }
+    }
+
+    updateAppState((current) => {
+      const transaction = createTransaction({
+        childId: mission.childId,
+        type: "grant",
+        amount: mission.rewardAmount,
+        label: `ミッション: ${mission.title}`,
+      });
+      const completedMission = {
+        ...mission,
+        completedAt: transaction.occurredAt,
+        completedTransactionId: transaction.id,
+      };
+
+      return {
+        ...current,
+        missions: replaceCurrentMission(current.missions, completedMission),
+        transactions: [transaction, ...current.transactions],
+        lastUpdatedAt: transaction.occurredAt,
+      };
+    });
+  };
+
   const unlockParent = (pin: string) => {
     setParentPin(pin);
     setAccessDenied(false);
@@ -247,7 +326,7 @@ export function App() {
   }
 
   if (route === "/parent/record") {
-    return renderParent(<ParentRecord state={appState} onAddTransaction={addTransaction} />);
+    return renderParent(<ParentRecord state={appState} onAddTransaction={addTransaction} onCompleteMission={completeMission} />);
   }
 
   if (route === "/parent/history") {
@@ -256,6 +335,10 @@ export function App() {
 
   if (route === "/parent/goal") {
     return renderParent(<ParentGoal state={appState} onSaveGoals={saveGoals} onModalOpenChange={setParentChromeInert} />);
+  }
+
+  if (route === "/parent/mission") {
+    return renderParent(<ParentMission state={appState} onSaveMission={saveMission} />);
   }
 
   if (route === "/parent/settings") {
@@ -358,6 +441,10 @@ function ParentShell({
         <button className={active === "/parent/goal" ? "active" : ""} onClick={() => navigate("/parent/goal")}>
           <Target size={20} />
           <span>目標</span>
+        </button>
+        <button className={active === "/parent/mission" ? "active" : ""} onClick={() => navigate("/parent/mission")}>
+          <ClipboardCheck size={20} />
+          <span>ミッション</span>
         </button>
         <button className={active === "/parent/settings" ? "active" : ""} onClick={() => navigate("/parent/settings")}>
           <Settings size={20} />

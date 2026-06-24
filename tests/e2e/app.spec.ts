@@ -40,6 +40,8 @@ test("kids kiosk stays display-only and child-safe", async ({ page }) => {
   await expect(page.getByRole("region", { name: "はるのタグ" })).toBeVisible();
   await expect(page.getByLabel("3このタグ")).toBeVisible();
   await expect(page.getByRole("img", { name: "レゴ ミニセット" })).toBeVisible();
+  await expect(page.getByLabel("あおいのみっしょん")).toContainText("といれにいく");
+  await expect(page.getByLabel("あおいのみっしょん")).toContainText("+1こ");
   await expect(page.getByText(/^更新 /)).toBeVisible();
 
   await expect(page.getByText("円")).toHaveCount(0);
@@ -72,7 +74,7 @@ test("kids kiosk links to PIN-locked parent record flow", async ({ page }) => {
 });
 
 test("parent routes require PIN and parent layout responds to viewport width", async ({ page }, testInfo) => {
-  for (const route of ["/parent/record", "/parent/history", "/parent/goal", "/parent/settings"]) {
+  for (const route of ["/parent/record", "/parent/history", "/parent/goal", "/parent/mission", "/parent/settings"]) {
     await page.goto(route);
     await expect(page.getByRole("heading", { name: "PINを入力" })).toBeVisible();
   }
@@ -107,6 +109,10 @@ test("parent routes require PIN and parent layout responds to viewport width", a
   await expect(page.locator(".parent-nav")).toHaveAttribute("aria-hidden", "true");
   await expectClickable(page.getByRole("button", { name: "保存する" }));
   await page.getByRole("button", { name: "目標設定を閉じる" }).click();
+
+  await page.getByRole("button", { name: "ミッション" }).click();
+  await expect(page.getByRole("heading", { name: "ミッション設定" })).toBeVisible();
+  await expectClickable(page.getByRole("button", { name: "保存する" }));
 
   await page.getByRole("button", { name: "設定" }).click();
   await expect(page.getByRole("heading", { name: "タグ設定" })).toBeVisible();
@@ -208,6 +214,28 @@ test("parent goal image URL is used on the kiosk", async ({ page }) => {
   await expect(goalImage).toHaveAttribute("src", imageUrl);
 });
 
+test("parent mission screen overwrites the current child mission", async ({ page }) => {
+  await page.goto("/parent/mission");
+  await unlockParent(page);
+
+  await expect(page.getByRole("heading", { name: "ミッション設定" })).toBeVisible();
+  await expect(page.getByRole("article", { name: "あおいのミッション" })).toContainText("といれにいく");
+
+  await page.getByLabel("ミッション名").fill("はみがき");
+  await page.getByRole("textbox", { name: "報酬" }).fill("2");
+  await page.getByLabel("期限").fill("2020-01-01T07:30");
+  await page.getByRole("button", { name: "保存する" }).click();
+  await expect(page.getByText("ミッションを保存しました")).toBeVisible();
+  await expect(page.getByRole("article", { name: "あおいのミッション" })).toContainText("はみがき");
+  await expect(page.getByRole("article", { name: "あおいのミッション" })).toContainText("+2こ");
+  await expect(page.getByRole("article", { name: "あおいのミッション" })).toContainText("期限を過ぎています");
+
+  await page.getByRole("button", { name: "子ども画面へ" }).click();
+  await expect(page.getByLabel("あおいのみっしょん")).toContainText("はみがき");
+  await expect(page.getByLabel("あおいのみっしょん")).toContainText("+2こ");
+  await expect(page.getByText("期限")).toHaveCount(0);
+});
+
 test("parent record grant and spend update kiosk balances", async ({ page }) => {
   await page.goto("/parent/record");
   await unlockParent(page);
@@ -235,6 +263,25 @@ test("parent record blocks overspend through the UI", async ({ page }) => {
   }
   await page.getByRole("button", { name: "記録する" }).click();
   await expect(page.getByText("残高が足りないため記録できません")).toBeVisible();
+});
+
+test("parent record completes an overdue mission once and updates kiosk balances", async ({ page }) => {
+  await page.goto("/parent/record");
+  await unlockParent(page);
+
+  await expect(page.getByText("といれにいく")).toBeVisible();
+  await expect(page.getByText("期限を過ぎています")).toBeVisible();
+  await page.getByRole("button", { name: "できた" }).click();
+  await expect(page.getByText("ミッションを記録しました")).toBeVisible();
+  await expect(page.getByRole("button", { name: "達成済み" })).toBeDisabled();
+
+  await page.getByRole("button", { name: "履歴" }).click();
+  await expect(page.getByRole("article", { name: /あおい ミッション: といれにいく/ })).toBeVisible();
+
+  await page.getByRole("button", { name: "子ども画面へ" }).click();
+  await expect(page.getByLabel("あおいの合計 4こ")).toBeVisible();
+  await expect(page.getByLabel("あおいのちょきん 1こ")).toBeVisible();
+  await expect(page.getByLabel("あおいのみっしょん")).toContainText("できた");
 });
 
 test("history cancel flow adds correction and disables double cancel in UI", async ({ page }) => {
@@ -283,6 +330,42 @@ test("API requires PIN for goal updates", async ({ request }) => {
     data: { goals },
   });
   expect(withPin.status()).toBe(200);
+});
+
+test("API requires PIN and prevents duplicate mission completion", async ({ request }) => {
+  const noPinSave = await request.post("/api/missions", {
+    data: { mission: { childId: "aoi", title: "APIミッション", rewardAmount: 2 } },
+  });
+  expect(noPinSave.status()).toBe(403);
+
+  const save = await request.post("/api/missions", {
+    headers: parentPinHeader,
+    data: {
+      mission: {
+        childId: "aoi",
+        title: "APIミッション",
+        rewardAmount: 2,
+        deadlineAt: "2020-01-01T00:00:00.000Z",
+      },
+    },
+  });
+  expect(save.status()).toBe(200);
+  const saveBody = await save.json();
+  const mission = saveBody.state.missions.find((item: { childId: string }) => item.childId === "aoi");
+  expect(mission.title).toBe("APIミッション");
+
+  const noPinComplete = await request.post(`/api/missions/${mission.id}/complete`);
+  expect(noPinComplete.status()).toBe(403);
+
+  const complete = await request.post(`/api/missions/${mission.id}/complete`, { headers: parentPinHeader });
+  expect(complete.status()).toBe(201);
+  const completeBody = await complete.json();
+  expect(completeBody.state.transactions[0].label).toBe("ミッション: APIミッション");
+  expect(completeBody.state.transactions[0].amount).toBe(2);
+
+  const secondComplete = await request.post(`/api/missions/${mission.id}/complete`, { headers: parentPinHeader });
+  expect(secondComplete.status()).toBe(409);
+  await expect(secondComplete.json()).resolves.toEqual({ error: "mission_already_completed" });
 });
 
 test("API requires PIN and enforces ledger correction rules", async ({ request }) => {

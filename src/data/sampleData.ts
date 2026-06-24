@@ -1,4 +1,4 @@
-import type { Child, Goal, Settings, ShopItem, Transaction } from "../domain/types";
+import type { Child, Goal, Mission, Settings, ShopItem, Transaction } from "../domain/types";
 
 export const settings: Settings = {
   tokenYen: 250,
@@ -38,6 +38,22 @@ export const shopItems: ShopItem[] = [
 export const goals: Goal[] = [
   { id: "goal-aoi", childId: "aoi", title: "レゴ ミニセット", targetAmount: 8, imagePreset: "blocks", status: "active" },
   { id: "goal-haru", childId: "haru", title: "ポケモンのぬいぐるみ", targetAmount: 10, imagePreset: "plush", status: "active" },
+];
+
+export const missions: Mission[] = [
+  {
+    id: "mission-aoi",
+    childId: "aoi",
+    title: "といれにいく",
+    rewardAmount: 1,
+    deadlineAt: "2026-05-20T20:00:00+09:00",
+  },
+  {
+    id: "mission-haru",
+    childId: "haru",
+    title: "じゅんびをする",
+    rewardAmount: 1,
+  },
 ];
 
 export const transactions: Transaction[] = [

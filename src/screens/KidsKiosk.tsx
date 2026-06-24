@@ -1,6 +1,6 @@
 import { ClipboardEdit } from "lucide-react";
 import { ChildTokenPanel } from "../components/kids/ChildTokenPanel";
-import { getVisibleGoal } from "../domain/calculations";
+import { getCurrentMission, getVisibleGoal } from "../domain/calculations";
 import type { Goal } from "../domain/types";
 import type { AppState } from "../state/appState";
 
@@ -16,11 +16,13 @@ export function KidsKiosk({ state, onOpenParentRecord }: { state: AppState; onOp
       <div className="children-grid">
         {activeChildren.map((child) => {
           const goal = getVisibleGoal(state.goals, child.id) ?? createPlaceholderGoal(child.id);
+          const mission = getCurrentMission(state.missions, child.id);
           return (
             <ChildTokenPanel
               key={child.id}
               child={child}
               goal={goal}
+              mission={mission}
               settings={state.settings}
               transactions={state.transactions}
             />

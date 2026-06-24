@@ -1,13 +1,21 @@
-import { children, goals, settings, shopItems, transactions } from "../data/sampleData";
-import type { Child, Goal, Settings, ShopItem, Transaction, TransactionType } from "../domain/types";
+import { children, goals, missions, settings, shopItems, transactions } from "../data/sampleData";
+import type { Child, Goal, Mission, Settings, ShopItem, Transaction, TransactionType } from "../domain/types";
 
 export type AppState = {
   settings: Settings;
   children: Child[];
   shopItems: ShopItem[];
   goals: Goal[];
+  missions: Mission[];
   transactions: Transaction[];
   lastUpdatedAt: string;
+};
+
+export type MissionInput = {
+  childId: string;
+  title: string;
+  rewardAmount: number;
+  deadlineAt?: string;
 };
 
 export type TransactionInput = {
@@ -26,6 +34,7 @@ export const initialAppState: AppState = {
   children,
   shopItems,
   goals,
+  missions,
   transactions,
   lastUpdatedAt: "2026-05-19T23:30:00+09:00",
 };
@@ -40,6 +49,7 @@ export function readStoredState(): AppState {
       ...initialAppState,
       ...parsed,
       settings: { ...initialAppState.settings, ...parsed.settings },
+      missions: Array.isArray(parsed.missions) ? parsed.missions : initialAppState.missions,
     };
   } catch {
     return initialAppState;
@@ -61,6 +71,20 @@ export function createTransaction(input: TransactionInput): Transaction {
     relatedTransactionId: input.relatedTransactionId,
     occurredAt: new Date().toISOString(),
   };
+}
+
+export function createMission(input: MissionInput): Mission {
+  return {
+    id: crypto.randomUUID(),
+    childId: input.childId,
+    title: input.title.trim() || "みっしょん",
+    rewardAmount: Math.max(1, Math.round(input.rewardAmount)),
+    deadlineAt: input.deadlineAt || undefined,
+  };
+}
+
+export function replaceCurrentMission(missions: Mission[], mission: Mission): Mission[] {
+  return [...missions.filter((item) => item.childId !== mission.childId), mission];
 }
 
 export function createCancelTransaction(source: Transaction, reason: string): Transaction {

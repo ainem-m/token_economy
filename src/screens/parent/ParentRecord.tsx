@@ -1,9 +1,9 @@
-import { Minus, Plus, Save } from "lucide-react";
+import { Check, Minus, Plus, Save } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ItemIcon } from "../../components/common/ItemIcon";
 import { ParentSection } from "../../components/parent/ParentSection";
-import { getBalance } from "../../domain/calculations";
-import type { ShopItem, TransactionType } from "../../domain/types";
+import { getBalance, getCurrentMission, isMissionCompleted, isMissionOverdue } from "../../domain/calculations";
+import type { Mission, ShopItem, TransactionType } from "../../domain/types";
 import type { AppState, TransactionInput } from "../../state/appState";
 
 type RecordMode = "grant" | "spend";
@@ -11,9 +11,11 @@ type RecordMode = "grant" | "spend";
 export function ParentRecord({
   state,
   onAddTransaction,
+  onCompleteMission,
 }: {
   state: AppState;
   onAddTransaction: (input: TransactionInput) => void | Promise<void>;
+  onCompleteMission: (mission: Mission) => void | Promise<void>;
 }) {
   const activeChildren = useMemo(
     () => [...state.children].filter((child) => child.isActive).sort((a, b) => a.displayOrder - b.displayOrder),
@@ -30,7 +32,9 @@ export function ParentRecord({
   const [note, setNote] = useState("物理タグの受け渡し");
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
+  const [missionPending, setMissionPending] = useState(false);
   const balance = getBalance(state.transactions, childId);
+  const mission = getCurrentMission(state.missions, childId);
 
   const chooseWeeklyGrant = () => {
     setMode("grant");
@@ -74,6 +78,20 @@ export function ParentRecord({
     }
   };
 
+  const completeMission = async () => {
+    if (!mission || isMissionCompleted(mission)) return;
+
+    setMissionPending(true);
+    try {
+      await onCompleteMission(mission);
+      setMessage("ミッションを記録しました");
+    } catch {
+      setMessage("ミッションを記録できませんでした");
+    } finally {
+      setMissionPending(false);
+    }
+  };
+
   return (
     <div className="parent-page">
       <ParentSection title="記録する" caption={`いま ${balance}こ。物理タグの受け渡しを親が記録します`}>
@@ -109,6 +127,26 @@ export function ParentRecord({
             </button>
           ))}
         </div>
+      </ParentSection>
+
+      <ParentSection title="みっしょん">
+        {mission ? (
+          <div className="mission-complete-card">
+            <div>
+              <strong>{mission.title}</strong>
+              <p className={isMissionOverdue(mission) ? "mission-parent-status overdue" : "mission-parent-status"}>
+                {isMissionCompleted(mission) ? "達成済み" : isMissionOverdue(mission) ? "期限を過ぎています" : "できたら記録"}
+              </p>
+            </div>
+            <b>+{mission.rewardAmount}こ</b>
+            <button onClick={completeMission} disabled={missionPending || isMissionCompleted(mission)}>
+              <Check size={18} />
+              {isMissionCompleted(mission) ? "達成済み" : "できた"}
+            </button>
+          </div>
+        ) : (
+          <p className="empty-note">ミッションは未設定です</p>
+        )}
       </ParentSection>
 
       <ParentSection title="詳細">

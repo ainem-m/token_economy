@@ -38,6 +38,7 @@ export function initDb() {
   seedDocument("children", seedState.children);
   seedDocument("shopItems", seedState.shopItems);
   seedDocument("goals", seedState.goals);
+  seedDocument("missions", seedState.missions);
   seedDocument("lastUpdatedAt", seedState.lastUpdatedAt);
 
   const transactionCount = db.prepare("select count(*) as count from transactions").get().count;
@@ -58,6 +59,7 @@ export function resetAppStateForTest() {
     seedDocument("children", seedState.children);
     seedDocument("shopItems", seedState.shopItems);
     seedDocument("goals", seedState.goals);
+    seedDocument("missions", seedState.missions);
     seedDocument("lastUpdatedAt", seedState.lastUpdatedAt);
     seedTransactions();
     db.exec("commit");
@@ -98,6 +100,7 @@ export function readAppState() {
     children: readDocument("children"),
     shopItems: readDocument("shopItems"),
     goals: readDocument("goals"),
+    missions: readDocument("missions") ?? [],
     transactions: readTransactions(),
     lastUpdatedAt: readDocument("lastUpdatedAt"),
   };
@@ -160,6 +163,56 @@ export function updateGoals(input) {
 
   writeDocument("goals", goals);
   writeDocument("lastUpdatedAt", updatedAt);
+}
+
+export function updateMission(input) {
+  const current = readAppState();
+  const mission = normalizeMissionInput(input?.mission, current.children);
+  const missions = replaceCurrentMission(current.missions, mission, current.children);
+  const updatedAt = new Date().toISOString();
+
+  writeDocument("missions", missions);
+  writeDocument("lastUpdatedAt", updatedAt);
+}
+
+export function completeMission(missionId) {
+  db.exec("begin immediate");
+  try {
+    const current = readAppState();
+    const mission = current.missions.find((candidate) => candidate.id === missionId);
+    if (!mission) throw httpError(404, "mission_not_found");
+    if (mission.completedAt || mission.completedTransactionId) throw httpError(409, "mission_already_completed");
+
+    const child = current.children.find((candidate) => candidate.id === mission.childId && candidate.isActive);
+    if (!child) throw httpError(400, "invalid_child");
+
+    const occurredAt = new Date().toISOString();
+    const transaction = {
+      id: crypto.randomUUID(),
+      childId: mission.childId,
+      type: "grant",
+      amount: mission.rewardAmount,
+      label: `ミッション: ${mission.title}`,
+      note: undefined,
+      relatedTransactionId: undefined,
+      occurredAt,
+    };
+    const completedMission = {
+      ...mission,
+      completedAt: occurredAt,
+      completedTransactionId: transaction.id,
+    };
+    const missions = replaceCurrentMission(current.missions, completedMission, current.children);
+
+    insertTransaction(transaction);
+    writeDocument("missions", missions);
+    writeDocument("lastUpdatedAt", occurredAt);
+    db.exec("commit");
+    return transaction;
+  } catch (error) {
+    db.exec("rollback");
+    throw error;
+  }
 }
 
 function normalizeSettings(input, fallback) {
@@ -241,6 +294,36 @@ function normalizeGoals(input, fallback, children) {
       status,
     };
   });
+}
+
+function normalizeMissionInput(input, children) {
+  const child = children.find((candidate) => candidate.id === input?.childId && candidate.isActive);
+  if (!child) throw httpError(400, "invalid_child");
+
+  const title = String(input?.title || "").trim().slice(0, 32);
+  if (!title) throw httpError(400, "invalid_mission_title");
+
+  return {
+    id: crypto.randomUUID(),
+    childId: child.id,
+    title,
+    rewardAmount: positiveInteger(input?.rewardAmount, 1),
+    deadlineAt: normalizeDeadline(input?.deadlineAt),
+  };
+}
+
+function replaceCurrentMission(missions, mission, children) {
+  const displayOrderByChildId = new Map(children.map((child) => [child.id, child.displayOrder]));
+  return [...missions.filter((item) => item.childId !== mission.childId), mission]
+    .sort((a, b) => (displayOrderByChildId.get(a.childId) ?? 999) - (displayOrderByChildId.get(b.childId) ?? 999));
+}
+
+function normalizeDeadline(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return undefined;
+  const date = new Date(raw);
+  if (Number.isNaN(date.getTime())) throw httpError(400, "invalid_mission_deadline");
+  return date.toISOString();
 }
 
 function normalizePreset(value, fallback) {

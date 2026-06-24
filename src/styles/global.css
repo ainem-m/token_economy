@@ -341,6 +341,59 @@ button:disabled {
   color: #7c43c8;
 }
 
+.kids-mission {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 10px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 2px solid #e9cf91;
+  border-radius: 18px;
+  background: #fffaf0;
+}
+
+.kids-mission .eyebrow {
+  grid-column: 1 / -1;
+  color: #8a5b12;
+}
+
+.kids-mission strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #2d2210;
+  font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+  line-height: 1.16;
+}
+
+.kids-mission-reward,
+.kids-mission-complete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.kids-mission-reward {
+  background: #e7f8e6;
+  color: #1c7b35;
+}
+
+.kids-mission-complete {
+  grid-column: 1 / -1;
+  width: max-content;
+  background: #f4edff;
+  color: #7c43c8;
+}
+
+.kids-mission.completed {
+  border-color: #d8c4f1;
+  background: #fbf7ff;
+}
+
 .progress-bar {
   height: 18px;
   overflow: hidden;
@@ -629,6 +682,12 @@ input {
   color: #bd2424;
 }
 
+.empty-note {
+  margin: 0;
+  color: #66788a;
+  font-weight: 900;
+}
+
 .pin-lock {
   justify-items: stretch;
   padding: 24px 18px;
@@ -704,7 +763,7 @@ input {
   right: 50%;
   bottom: 12px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   width: min(calc(100vw - 24px), 406px);
   transform: translateX(50%);
   border: 1px solid #d6e2ee;
@@ -922,6 +981,97 @@ input {
 .goal-card-list {
   display: grid;
   gap: 10px;
+}
+
+.mission-card-list {
+  display: grid;
+  gap: 10px;
+}
+
+.mission-parent-card,
+.mission-complete-card {
+  display: grid;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #d7e3ef;
+  border-radius: 14px;
+  background: #fbfdff;
+}
+
+.mission-parent-card {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.mission-complete-card {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.mission-parent-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid #d6e2ee;
+  border-radius: 14px;
+  background: #fff;
+  color: #1e78d3;
+}
+
+.mission-parent-card span {
+  color: #66788a;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.mission-parent-card strong,
+.mission-complete-card strong {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #172544;
+  font-weight: 900;
+  line-height: 1.18;
+}
+
+.mission-parent-card p,
+.mission-complete-card p {
+  margin: 2px 0 0;
+}
+
+.mission-parent-card b,
+.mission-complete-card b {
+  color: #19833c;
+  font-size: 1.1rem;
+  white-space: nowrap;
+}
+
+.mission-parent-status {
+  color: #1d6d2f;
+  font-size: 0.84rem;
+  font-weight: 900;
+}
+
+.mission-parent-status.completed {
+  color: #7c43c8;
+}
+
+.mission-parent-status.overdue {
+  color: #ba6612;
+}
+
+.mission-complete-card button {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  border: 1px solid #85c984;
+  border-radius: 12px;
+  background: #edfae8;
+  color: #1f7730;
+  font-weight: 900;
 }
 
 .goal-card {
@@ -1192,6 +1342,10 @@ input {
   }
 
   .goal-card-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mission-card-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 

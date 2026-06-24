@@ -19,6 +19,21 @@ export const seedState = {
     { id: "goal-aoi", childId: "aoi", title: "レゴ ミニセット", targetAmount: 8, imagePreset: "blocks", status: "active" },
     { id: "goal-haru", childId: "haru", title: "ポケモンのぬいぐるみ", targetAmount: 10, imagePreset: "plush", status: "active" },
   ],
+  missions: [
+    {
+      id: "mission-aoi",
+      childId: "aoi",
+      title: "といれにいく",
+      rewardAmount: 1,
+      deadlineAt: "2026-05-20T20:00:00+09:00",
+    },
+    {
+      id: "mission-haru",
+      childId: "haru",
+      title: "じゅんびをする",
+      rewardAmount: 1,
+    },
+  ],
   transactions: [
     { id: "tx-aoi-1", childId: "aoi", type: "grant", amount: 2, label: "土ようび", occurredAt: "2026-05-09T07:00:00+09:00" },
     { id: "tx-aoi-2", childId: "aoi", type: "grant", amount: 2, label: "土ようび", occurredAt: "2026-05-16T07:00:00+09:00" },

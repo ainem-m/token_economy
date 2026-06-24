@@ -53,6 +53,7 @@ Current structure for the VPS-ready PoC. Keep the codebase small and route-orien
         └── parent/
             ├── ParentGoal.tsx
             ├── ParentHistory.tsx
+            ├── ParentMission.tsx
             ├── ParentRecord.tsx
             └── ParentSettings.tsx
 ```
@@ -70,7 +71,7 @@ Pure product logic and types.
 
 Expected files:
 
-- `types.ts`: `Child`, `Transaction`, `Goal`, `ShopItem`, `Settings`
+- `types.ts`: `Child`, `Transaction`, `Goal`, `Mission`, `ShopItem`, `Settings`
 - `calculations.ts`: balance, physical tokens, saved tokens, remaining goal count
 
 ### `src/data/`
@@ -80,6 +81,7 @@ Static seed/fallback fixtures.
 - fixed children
 - fixed shop items
 - fixed goals
+- fixed missions
 - fixed transactions
 - fixed settings
 
@@ -101,6 +103,7 @@ Route-level screens.
 - `parent/ParentRecord.tsx`
 - `parent/ParentHistory.tsx`
 - `parent/ParentGoal.tsx`
+- `parent/ParentMission.tsx`
 - `parent/ParentSettings.tsx`
 
 Screens may compose components and call callbacks passed from `App.tsx`.
@@ -138,6 +141,7 @@ Small Node runtime for VPS-style deployment.
 - `/parent/record`
 - `/parent/history`
 - `/parent/goal`
+- `/parent/mission`
 - `/parent/settings`
 
 Redirect `/` to `/kids` or render the same screen.

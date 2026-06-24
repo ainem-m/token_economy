@@ -190,3 +190,33 @@ Done:
 - オフラインでも真っ白にならない
 - 最後の表示状態を維持する
 - 最終更新時刻が分かる
+
+## Mission v1: Parent-Managed Missions
+
+Goal:
+
+- 子どもごとに1つの身近なミッションを表示し、親が達成時にトークンを付与できる
+
+Build:
+
+- `missions` app state
+- `/parent/mission`
+- parent mission completion on `/parent/record`
+- mission reward as a positive `grant` transaction
+- compact `みっしょん` display on `/kids`
+
+Do not build:
+
+- child-side mission completion
+- repeat schedules
+- missed-day tracking
+- mission analytics
+- mission request flows
+
+Done:
+
+- child kiosk shows each current mission without action buttons
+- parent can overwrite each child's mission
+- parent can complete a mission once
+- mission completion appears in normal transaction history
+- overdue missions can still be completed by parent judgment

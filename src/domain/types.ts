@@ -41,6 +41,16 @@ export type Goal = {
   status: GoalStatus;
 };
 
+export type Mission = {
+  id: string;
+  childId: string;
+  title: string;
+  rewardAmount: number;
+  deadlineAt?: string;
+  completedAt?: string;
+  completedTransactionId?: string;
+};
+
 export type ShopCategory = "snack" | "toy" | "book" | "special";
 
 export type ItemPreset = "choco" | "ice" | "gacha" | "blocks" | "book" | "plush" | "coin";

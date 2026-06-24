@@ -34,7 +34,7 @@
 - Node API + SQLite
 - Cloudflare Access as the outer gate
 - in-app parent PIN for `/parent/*` and write APIs
-- `/kids`, `/parent/record`, `/parent/history`, `/parent/goal`, `/parent/settings`
+- `/kids`, `/parent/record`, `/parent/history`, `/parent/goal`, `/parent/mission`, `/parent/settings`
 
 Later:
 

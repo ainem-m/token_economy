@@ -4,19 +4,22 @@ import { ProgressBar } from "../common/ProgressBar";
 import {
   getBalance,
   getGoalRemaining,
+  isMissionCompleted,
   isGoalComplete,
   getSavedTokens,
 } from "../../domain/calculations";
-import type { Child, Goal, Settings, Transaction } from "../../domain/types";
+import type { Child, Goal, Mission, Settings, Transaction } from "../../domain/types";
 
 export function ChildTokenPanel({
   child,
   goal,
+  mission,
   settings,
   transactions,
 }: {
   child: Child;
   goal: Goal;
+  mission?: Mission;
   settings: Settings;
   transactions: Transaction[];
 }) {
@@ -68,7 +71,22 @@ export function ChildTokenPanel({
           </p>
         </div>
       </div>
+
+      {mission && <MissionBox mission={mission} childName={child.name} />}
     </section>
+  );
+}
+
+function MissionBox({ mission, childName }: { mission: Mission; childName: string }) {
+  const completed = isMissionCompleted(mission);
+
+  return (
+    <div className={completed ? "kids-mission completed" : "kids-mission"} aria-label={`${childName}のみっしょん`}>
+      <span className="eyebrow">みっしょん</span>
+      <strong>{mission.title}</strong>
+      <span className="kids-mission-reward">+{mission.rewardAmount}こ</span>
+      {completed && <span className="kids-mission-complete">できた</span>}
+    </div>
   );
 }
 

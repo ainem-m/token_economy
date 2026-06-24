@@ -33,6 +33,8 @@ Child kiosk:
 - no buyable item list
 - no transaction history
 - no yen conversion
+- no mission completion button
+- no mission deadline or overdue warning
 - no ranking or comparison language
 
 Parent static screens:
@@ -90,6 +92,20 @@ Given `physicalTokenLimit = 3`:
 - achieved state appears when balance >= targetAmount
 - achieved text is `たっせい！`
 
+## Mission v1
+
+- each child has one current mission
+- `/kids` displays mission title and reward amount only
+- `/kids` has no mission completion button
+- `/kids` does not show deadline or overdue state
+- `/parent/mission` requires PIN
+- parent can overwrite a child's current mission
+- saving a new mission clears completed state
+- `/parent/record` can complete the mission once
+- completion creates a positive `grant` transaction labeled `ミッション: {title}`
+- duplicate completion is prevented
+- overdue mission can still be completed by parent
+
 ## All Phases: Child Kiosk Safety
 
 - no spend button
@@ -98,6 +114,7 @@ Given `physicalTokenLimit = 3`:
 - no settings controls
 - no purchase request button in initial PoC
 - no goal request button in initial PoC
+- no mission completion button
 - no transaction history
 - no yen conversion
 - no ranking or comparison language
@@ -142,10 +159,15 @@ Current automated coverage:
 - wrong PIN is rejected
 - leaving parent mode locks parent screens again
 - `/parent/record`, `/parent/history`, `/parent/goal`, and `/parent/settings` require PIN
+- `/parent/mission` requires PIN
 - parent navigation switches bottom/side layout by viewport
 - parent settings update the kiosk display
 - parent settings weekly grant amount updates the record quick action
 - parent goals update the kiosk goal display
+- parent missions update the kiosk mission display
+- parent record mission completion updates the kiosk balance
+- API rejects mission writes without parent PIN
+- API prevents duplicate mission completion
 - parent goal image URL is reflected on the kiosk
 - parent record grant/spend updates the kiosk balance
 - parent record blocks overspend through the UI

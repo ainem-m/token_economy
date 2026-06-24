@@ -27,6 +27,10 @@ Each child panel shows:
 - 目標画像
 - 目標まであと何個
 - 進捗バー
+- みっしょん
+- ミッション名
+- 達成時にもらえるタグ数
+- 達成済みの短い印
 - 達成時の「たっせい！」は1箇所だけ
 - 最終更新時刻は親の確認用として画面隅に小さく表示
 
@@ -39,6 +43,8 @@ Do not show:
 - 親設定
 - 購入確定
 - 親へのリクエスト
+- ミッション達成操作
+- ミッション期限切れ表示
 
 Interaction:
 
@@ -53,6 +59,7 @@ Routes:
 - `/parent/record`
 - `/parent/history`
 - `/parent/goal`
+- `/parent/mission`
 - `/parent/shop`
 - `/parent/settings`
 
@@ -62,6 +69,8 @@ Principles:
 - one-handed use
 - record in a few taps
 - clear cancel path
+- mission setup belongs on `/parent/mission`
+- mission completion belongs on `/parent/record`
 - parent-only information lives here
 
 ## Visual Rules

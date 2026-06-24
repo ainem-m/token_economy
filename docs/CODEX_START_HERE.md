@@ -23,6 +23,7 @@ The app is past the initial static phase. Current baseline:
 - SQLite source of truth for VPS-style runs
 - parent PIN required for `/parent/*` and write APIs
 - `/kids` remains display-only
+- mission v1 is parent-managed: one current mission per child, child-facing display only
 
 Current exclusions:
 

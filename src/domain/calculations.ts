@@ -1,4 +1,4 @@
-import type { Goal, Settings, Transaction } from "./types";
+import type { Goal, Mission, Settings, Transaction } from "./types";
 
 export function getBalance(transactions: Transaction[], childId: string): number {
   return transactions
@@ -33,6 +33,18 @@ export function isGoalComplete(balance: number, goal: Goal): boolean {
 export function getVisibleGoal(goals: Goal[], childId: string): Goal | undefined {
   return goals.find((goal) => goal.childId === childId && goal.status === "active")
     ?? goals.find((goal) => goal.childId === childId && goal.status === "achieved");
+}
+
+export function getCurrentMission(missions: Mission[], childId: string): Mission | undefined {
+  return missions.find((mission) => mission.childId === childId);
+}
+
+export function isMissionCompleted(mission: Mission): boolean {
+  return Boolean(mission.completedAt || mission.completedTransactionId);
+}
+
+export function isMissionOverdue(mission: Mission, now = new Date()): boolean {
+  return Boolean(mission.deadlineAt && !isMissionCompleted(mission) && new Date(mission.deadlineAt) < now);
 }
 
 export function isTransactionCancelled(transactions: Transaction[], transactionId: string): boolean {

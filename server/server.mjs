@@ -2,7 +2,17 @@ import { createReadStream, existsSync } from "node:fs";
 import { createServer } from "node:http";
 import path from "node:path";
 import { authenticate, requireParentPin } from "./auth.mjs";
-import { addTransaction, cancelTransaction, initDb, readAppState, resetAppStateForTest, updateGoals, updateSettings } from "./db.mjs";
+import {
+  addTransaction,
+  cancelTransaction,
+  completeMission,
+  initDb,
+  readAppState,
+  resetAppStateForTest,
+  updateGoals,
+  updateMission,
+  updateSettings,
+} from "./db.mjs";
 
 const PORT = Number(process.env.PORT || 8787);
 const HOST = process.env.HOST || "127.0.0.1";
@@ -88,6 +98,29 @@ async function handleApi(request, response) {
       throw error;
     }
     sendJson(response, 200, { state: readAppState(), account });
+    return;
+  }
+
+  if (request.method === "POST" && url.pathname === "/api/missions") {
+    try {
+      updateMission(await readJson(request));
+    } catch (error) {
+      if (sendKnownError(response, error)) return;
+      throw error;
+    }
+    sendJson(response, 200, { state: readAppState(), account });
+    return;
+  }
+
+  const missionCompleteMatch = url.pathname.match(/^\/api\/missions\/([^/]+)\/complete$/);
+  if (request.method === "POST" && missionCompleteMatch) {
+    try {
+      completeMission(missionCompleteMatch[1]);
+    } catch (error) {
+      if (sendKnownError(response, error)) return;
+      throw error;
+    }
+    sendJson(response, 201, { state: readAppState(), account });
     return;
   }
 
